@@ -1,0 +1,70 @@
+
+
+Para instalar este sistema não se esqueça das seguintes informações
+
+O kolibri pandora é um sistema MVC diferente de seus antecesores ou mesmo da idéia do SWM/FIEO os pacotes
+são incompativeis, a unica coisa proxima é o mydataobj usando no SWM/FIEO que é um FORK da primeira versão.
+
+Configurando
+
+NIVEIS DE ACESSO
+
+O kolibri usa uma especie de escala de privilégio para carga do pacote de controllers das seções do site. 
+São tres tipo de acesso. 
+
+	Aberto - onde o acesso não precisa de login de sessão
+	
+	Login -  onde para acesso será necessário login de sessão, mas são paginas sem conteudo admin.
+			 Ocontrole é feito pelo plugin "Auth" para alterar as politicas de acesso basta alterar 
+			 o conteudos dos métodos de auth.
+			 
+	Login -  onde para acesso será necessário login de sessão, mas são paginas com conteudo admin.
+			 Ocontrole é feito pelo plugin "Auth" para alterar as politicas de acesso basta alterar 
+			 o conteudos dos métodos de auth.
+	
+	closed - Acesso fechado a todos, uma forma de deixar uma sessão fora do ar em caso de emergencia.		 
+	
+			 
+Para definir quais os niveis no arquivo de cada pacote no arquivo config.php defina os pacotes 
+
+	exemplo:
+	
+		access::add("foo","open");     # Acesso aberto a todos os controles do pacote foo
+		access::add("bar","login");    # Acesso via login a todos os controles do pacote bar
+		access::add("nod","admin");    # Acesso via login/admin a todos os controles do pacote nod
+		access::add("faa","closed");   # Acesso Fechado.
+		
+		
+ACESSO BANCO DE DADOS		
+
+	O registro de acesso a banco de dados é configurado em databases.php, cada linha é um acesso nomeado diferente.
+	
+	datababase::add($conectionName, $host, $port, $user, $pass, $database);
+	
+	
+PACOTES
+
+	O Kolibri possui tres pastas importantes para o desenvolvimento de aplicações
+	
+	- controllers
+	- models
+	- views
+
+	Dentro dela existens subpastas referente aos nomes dos pacotes. 
+	Por exemplo sistema de login do kolibri tem uma subpasta chamada login em cada uma destas pastas.
+		
+	No caso a pasta models/login é um model do pacote login e dentro voce encontra as classes desses model.
+	
+	
+MVC
+
+	Lembre-se que todas classes MVCs devem extender as classes "pai" do sistema
+	
+		exemplo uma classe controller chamada compras deve ser criada com o cabeçalho 
+		
+			class compras extends controller { .... } 
+			
+		
+				
+	
+	

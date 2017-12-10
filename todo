@@ -1,0 +1,21 @@
+	
+- ACLs
+	- Sistema de selects de inclusão de ACLs não retorna lista de perfis
+	( Problemas de acesso resolve isso )  
+	
+	
+- Login Screen
+	- Novo template
+		
+	
+- Instalador
+	- Identificar a existencia do config.php
+	- Identificar a existencia do database.php
+	- Questionar modo de funcionamento do sistema de segurança aberto/fechado
+	
+	
+	
+- Gestor de conteudo
+	- Ambiente para cadastro de coneudo com nome
+	- Vizualização de conteudo com base na URL   http://server/index.php/content/my-page-name
+	
