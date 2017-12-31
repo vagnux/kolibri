@@ -33,11 +33,18 @@ class database {
 		self::$connections [$conectionName] ['pass'] = $pass;
 		self::$connections [$conectionName] ['database'] = $database;
 	}
+	
+	private static function failMysqlConnection ($link) {
+	      debug::log(mysqli_error($link));
+	      page::addBody("Fails !");
+	      
+	}
+	
 	public static function __callstatic($conectionName, $arg) {
 		if ((self::$connections [$conectionName] ['type']) == 'mysql') {
 			if (function_exists ( "mysqli_connect" )) {
 				if ((self::$connections [$conectionName] ['host'])) {
-					$link = mysqli_connect ( self::$connections [$conectionName] ['host'], self::$connections [$conectionName] ['user'], self::$connections [$conectionName] ['pass'], self::$connections [$conectionName] ['database'], self::$connections [$conectionName] ['port'] ) or die ( mysqli_error ( $link ) );
+					$link = mysqli_connect ( self::$connections [$conectionName] ['host'], self::$connections [$conectionName] ['user'], self::$connections [$conectionName] ['pass'], self::$connections [$conectionName] ['database'], self::$connections [$conectionName] ['port'] ) or self::failMysqlConnection( $link );
 				}
 			} else {
 				//page::addBody ( "<h1>ERROR</h1> <p>Mysqli not avaliable !</p>" );

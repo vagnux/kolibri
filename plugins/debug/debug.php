@@ -1,67 +1,4 @@
-<?php
-
-require_once __DIR__ . "/../debug/DebugBar/HttpDriverInterface.php";
-require_once __DIR__ . "/../debug/DebugBar/RequestIdGeneratorInterface.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/DataCollectorInterface.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/MessagesAggregateInterface.php";
-require_once __DIR__ . "/../debug/DebugBar/Storage/StorageInterface.php";
-require_once __DIR__ . "/../debug/DebugBar/DataFormatter/DataFormatterInterface.php";
-
-require_once __DIR__ . "/../debug/DebugBar/DebugBar.php";
-require_once __DIR__ . "/../debug/DebugBar/PhpHttpDriver.php";
-require_once __DIR__ . "/../debug/DebugBar/JavascriptRenderer.php";
-require_once __DIR__ . "/../debug/DebugBar/StandardDebugBar.php";
-
-require_once __DIR__ . "/../debug/DebugBar/OpenHandler.php";
-require_once __DIR__ . "/../debug/DebugBar/DebugBarException.php";
-require_once __DIR__ . "/../debug/DebugBar/RequestIdGenerator.php";
-
-
-
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/DataCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/Renderable.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/MessagesCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/PDO/TraceablePDO.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/PDO/TracedStatement.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/PDO/PDOCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/PDO/TraceablePDOStatement.php";
-
-
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/ConfigCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/LocalizationCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/AggregatedCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/MemoryCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/AssetProvider.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/ExceptionsCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/PhpInfoCollector.php";
-
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/RequestDataCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/DataCollector/TimeDataCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/Bridge/SwiftMailer/SwiftLogCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/Bridge/SwiftMailer/SwiftMailCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/Bridge/PropelCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/Bridge/DoctrineCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/Bridge/Twig/TraceableTwigTemplate.php";
-require_once __DIR__ . "/../debug/DebugBar/Bridge/Twig/TraceableTwigEnvironment.php";
-require_once __DIR__ . "/../debug/DebugBar/Bridge/Twig/TwigCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/Bridge/MonologCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/Bridge/SlimCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/Bridge/Propel2Collector.php";
-require_once __DIR__ . "/../debug/DebugBar/Bridge/CacheCacheCollector.php";
-require_once __DIR__ . "/../debug/DebugBar/Storage/MemcachedStorage.php";
-
-require_once __DIR__ . "/../debug/DebugBar/Storage/RedisStorage.php";
-require_once __DIR__ . "/../debug/DebugBar/Storage/FileStorage.php";
-require_once __DIR__ . "/../debug/DebugBar/Storage/PdoStorage.php";
-require_once __DIR__ . "/../debug/DebugBar/DataFormatter/DebugBarVarDumper.php";
-require_once __DIR__ . "/../debug/DebugBar/DataFormatter/VarDumper/DebugBarHtmlDumper.php";
-require_once __DIR__ . "/../debug/DebugBar/DataFormatter/VarDumper/SeekingData.php";
-
-require_once __DIR__ . "/../debug/DebugBar/DataFormatter/DataFormatter.php";
-
-use DebugBar\StandardDebugBar;
-
-
+<?php 
 /*
  * Copyright (C) 2017 vagner
  *
@@ -83,7 +20,7 @@ use DebugBar\StandardDebugBar;
 
 final class debug{
 	
-	/*private function get_caller_info() {
+	private function get_caller_info() {
 		$c = '';
 		$file = '';
 		$func = '';
@@ -125,28 +62,9 @@ final class debug{
 		$handle = fopen("/tmp/Kolibri_debug.log", "a+");
 		fwrite($handle, $msgOut. "\n");
 		fclose($handle);
-	}*/
-	
-	
-	public static function log($msg) {
-		
-				
-		
-		
-		
-		
-		
-		
-		
-		
-		$debugbar = new StandardDebugBar();
-		$debugbarRenderer = $debugbar->getJavascriptRenderer();
-		$debugbar["messages"]->addMessage($msg);
-		
-		page::addBody($debugbarRenderer->renderHead());
-		page::addBody($debugbarRenderer->render());
-		
-		
 	}
+	
+	
+
 	
 }

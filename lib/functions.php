@@ -79,3 +79,43 @@ function is_https() {
         return FALSE;
     }
 }
+
+
+function getUrlTarget($url) {
+    
+    $dataUrl = explode("/", $url);
+    $size =  count($dataUrl);
+    
+    for ( $x = $size; $x > 0 ; $x--) {
+        if ( ! (strpos($dataUrl[$x],'?')) and ! (strpos($dataUrl[$x],'.php')) and ! (strpos($dataUrl[$x],'http')) and ! (strpos($dataUrl[$x],$_SERVER ['HTTP_HOST'])) and (strlen($dataUrl[$x]) > 0)) {
+            $aux[] = $dataUrl[$x];
+        }
+    }
+    #debug::log(print_r($aux,true));
+    $urlSite = explode("index.php", $url);
+    #debug::log(print_r($urlSite,true));
+    if ( count($urlSite) > 1 ) {
+        $urlSite = $urlSite[0];
+        $out['siteRoot'] = $urlSite;
+        $size = count($aux);
+        for ( $x=0;$x<=$size;$x++){
+            $y = $x + 1;
+            #debug::log($aux[$y] . " <> " . $aux[$x]);
+            if ( strpos($urlSite,$aux[$y]) or (strlen($aux[$y]) == 0)) {
+                if ( strlen($aux[$x])) {
+                $out['controller'] = $aux[$x];
+                }
+            }else{
+                if ( strlen($aux[$x])) {
+                $out['method'] = $aux[$x];
+                }
+            }
+        }
+        
+    }else{
+        debug::log("URL not index.php ?");
+    }
+    
+    #debug::log(print_r($out,true));
+    return $out;
+}

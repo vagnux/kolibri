@@ -26,6 +26,14 @@ session::init ();
 $pathURI =  explode('/index.php',$_SERVER ['REQUEST_URI']);
 
 
+$urlSession = $_SERVER ['HTTP_HOST'] . $_SERVER ['REQUEST_URI'];
+
+$_met = getUrlTarget($urlSession);
+
+config::set('siteRoot', $_met['siteRoot']);
+$_execute = $_met['controller'];
+$_method = $_met['method'];
+
 if ( is_https()) {
 	config::set("siteRoot", str_replace('index.php/', '', 'https://' . $_SERVER['HTTP_HOST'] . $pathURI[0]));
 }else{
@@ -36,32 +44,6 @@ if ( is_https()) {
     
 }
 
-$urlSession = $_SERVER ['HTTP_HOST'] . $_SERVER ['REQUEST_URI'];
-$urlSession = str_replace ( 'http://', '', $urlSession );
-$urlSession = str_replace ( 'https://', '', $urlSession );
-$urlSession = str_replace ( '//', '/', $urlSession );
-$urlSession = str_replace ( '///', '', $urlSession );
-$urlSession = str_replace ( 'index.php', '', $urlSession );
-$urlConfig = str_replace ( 'http://', '', config::siteRoot () );
-$urlConfig = str_replace ( 'https://', '', $urlConfig );
-$pos = strpos ( $urlSession, $urlConfig );
-
-if ($pos !== false) {
-	$urlSession = str_replace ( $urlConfig, '', $urlSession );
-	$url = explode ( '/', $urlSession );
-} else {
-	echo "Invalid siteRoot on config file<br>";
-	echo "$urlSession != " . $urlConfig;
-	//die ();
-}
-
-if (! $url [0]) {
-	$_execute = $url [1];
-	$_method = $url [2];
-} else {
-	$_execute = $url [0];
-	$_method = $url [1];
-}
 
 if (session::get ( 'installMode' )) {
 	$_execute = config::defaultController ();

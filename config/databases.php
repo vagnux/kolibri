@@ -23,6 +23,6 @@
  * Here add connection to mysql using the above syntax
  * datababase::add(conectionName, host, port, user, pass, database);
  */
-database::add ( "kolibriDB", "mysql", "127.0.0.1", "3306", "root", "dolphin007", "kolibri3" );
+database::add ( "kolibriDB", "mysql", "127.0.0.1", "3306", "root", "123456", "kolibri3" );
 #database::add("kolibriDB","mysql" , "127.0.0.1", "3306", "root", "prime@#$", "kolibri");
 #database::add("kolibriDB","sqlite" , __DIR__ . "../data/menu.sqlite", "", "", "", "kolibri");

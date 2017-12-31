@@ -28,4 +28,8 @@ class errors extends  controller{
 		page::render();
 		
 	}
+	function dataError() {
+	    page::addBody("ERRO 405");
+	    page::render();
+	}
 }

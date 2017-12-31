@@ -41,6 +41,7 @@ class boot
             session::init();
             // require_once ("controllers/$pkg/" . $controller . ".php"); # Codigo depreciado para vers��o 0.4
             require_once ("packages/$pkg/controllers/" . $controller . ".php");
+            debug::log("include file packages/$pkg/controllers/" . $controller . ".php");
             debug::log("Loading $pkg / $method");
             ob_start();
             $control = new $controller();
