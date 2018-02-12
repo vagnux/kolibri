@@ -23,6 +23,7 @@ class login extends controller
     
     function __construct()
     {
+        
         if (is_https()) {
             
             $requesAddress = 'https://' . $_SERVER['HTTP_HOST'] . '/' . $_SERVER['REQUEST_URI'];
@@ -31,13 +32,11 @@ class login extends controller
             if (config::https()) {
                 header("location: https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
             }
-            die();
+            debug::log("cometendo suicidio pois location nao é https ?");
+            //die();
         }
         
-        if (strpos($requesAddress, "login") === false) {
-            session::set('requestAddress', 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-            debug::log(" Link : " . session::get('requestAddress') . ' => ' . 'https://' . $_SERVER['HTTP_HOST'] . '/' . $_SERVER['REQUEST_URI']);
-        }
+        
         
         parent::__construct();
         $requesAddress = $_SERVER[REQUEST_URI];
@@ -45,12 +44,16 @@ class login extends controller
         if (strpos($requesAddress, "login") === false) {
             session::set('requesAddress', $requesAddress);
             debug::log(" Link : " . $requesAddress);
+            
         }
     }
     
     function index($msg = '')
     {
+        debug::log("carregando login");
+        debug::log(print_r($this->request,true));
         if ((! $this->request['pass']) and (! $this->request['login']) or ($msg)) {
+            debug::log("xaxaxaxaxaxa");
             // echo session::get ( 'login' );
             if (! session::get('login')) {
                 $out = new loginForm();
@@ -78,29 +81,38 @@ class login extends controller
             
             $s = new autenticator();
             $result = $s->authentic($this->request['login'], $this->request['pass']);
-            debug::log("Autentic: " . $result);
+            debug::log("Autenticado -: " . $result);
             if ($result) {
-                
+                debug::log("processando redirect");
                 $s->register();
-                $out = new loginForm();
-                $out->goPage(session::get('requestAddress'), "login");
-                // page::addBody('<meta http-equiv="refresh" content="0">');
-                page::render();
+                //$out = new loginForm();
+                //$out->goPage(session::get('requestAddress'), "login");
+                page::addBody('<meta http-equiv="refresh" content="0"; url=' . session::get('requestAddress') . ">");
+                page::addCode('MSG', '<meta http-equiv="refresh" content="0">');
+                page::renderAjax();
+                debug::log("codigo ajax enviado");
             } else {
-                
+                debug::log("Login e senha incorretos");
                 $this->index("Login e senha incorretos !");
             }
         } else {
-            $this->index("Login e senha incorretos");
+            debug::log("Login e senha em branco");
+            $this->index("Login e senha em branco");
         }
     }
     
     function logout($loginAgain = '')
     {
         session::destroy();
-        $this->index();
-        if ($loginAgain) {
+        
+        if ( $loginAgain) {
             $this->index();
+            
+        }else{
+            $site = config::siteRoot();
+            $cod = '"<meta http-equiv="refresh" content="0; url=' . $site. '">"';
+            page::addBody($cod);
+            page::renderAjax();
         }
     }
 }
