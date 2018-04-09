@@ -25,27 +25,27 @@ class groupModel {
     private $name;
     private $enable;
 
-    function __construct($idgroup = '') {
+   function __construct($idgroup = '') {
        $sys = new auth();
-       $sys->loadGroup($idgroup);
-        $this->idgroup =$sys->getgroupId();
-        $this->name =$sys->getgroupName();
-        $this->enable = 1;
+       $sys->group->load($idgroup);
+       $this->idgroup =$sys->group->getidgroup();
+       $this->name =$sys->group->getname();
+       $this->enable = 1;
     }
 
     function save() {
         $sys = new auth();
          if ( $this->idgroup ) {
-             $sys->setgroupId($this->idgroup);
+         	$sys->group->setidgroup($this->idgroup);
          }
-        $sys->setgroupName($this->name);
-        $sys->setgroupActive($this->enable);
-        $sys->saveGroup();
+         $sys->group->setname($this->name);
+         $sys->group->setenable($this->enable);
+         $sys->group->save();
     }
 
     function listGroup() {
         $sys = new auth();
-        return $sys->listAllGroups();
+        return $sys->group->listgroups();
     }
 
     function setname($name) {
@@ -70,8 +70,10 @@ class groupModel {
 
     function numUser($idgroup) {
         $sys = new auth();
-        $sys->setgroupId($idgroup);
-        $myArray = $sys->listMembersGroup();
+        
+        $myArray = $sys->groupsprofiles->listMembersGroup($idgroup);
+        debug::log($myArray);
+        debug::log("Total " . count($myArray['iduser']));
         return count($myArray['iduser']);
     }
 

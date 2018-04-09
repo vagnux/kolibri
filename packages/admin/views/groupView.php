@@ -28,15 +28,20 @@ class groupView  {
     function listGroups($arrayGroups) {
         page::addBody("<h3>Group List</h3>");
          $form = new formEasy();
+         $arrayGroups['Group'] = $arrayGroups['name'];
+         $arrayGroups['Users in group'] = $arrayGroups['users'];
          page::addBody($form->formActionButton(config::siteRoot() .  "/index.php/group/newGroup/", "New Group",''));
         if (is_array($arrayGroups)) {
             $i=0;
             foreach ( $arrayGroups['idgroup'] as $idgroup) {
                 $form = new formEasy();
-                $arrayGroups['Control'][$i] = $form->formActionButton(config::siteRoot() . "/index.php/group/delGroup/", "Remover",array("idgroup" => $idgroup));
+                $arrayGroups['Control'][$i] = $form->formActionButton(config::siteRoot() . "/index.php/group/delGroup/", "Delete",array("idgroup" => $idgroup));
                 $i++;
             }
         }
+        unset($arrayGroups['name']);
+        unset($arrayGroups['users']);
+        unset($arrayGroups['enable']);
         unset( $arrayGroups['idgroup']);
         $table = new htmlTable();
          page::addBody($table->loadTable($arrayGroups));
@@ -49,7 +54,7 @@ class groupView  {
          $form = new formEasy();
          $form->action(config::siteRoot() . "/index.php/group/saveGroup/")->method("post")->openForm();
          $form->addText("Group Name", "groupName", "",1);
-         $form->type("submit")->value("Save")->done();
+         $form->type("submit")->class('btn btn-primary')->value("Save")->done();
         $form->closeForm();
         page::addBody($form->printform());
         page::render();

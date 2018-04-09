@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with Kolibri. If not, see <http://www.gnu.org/licenses/>.
  */
+
+define('kversion',20180308);
+
 function templateCall($pluginClass, $pluginMethod)
 {
     $string = explode('(', $pluginMethod);
@@ -34,15 +37,17 @@ function templateCall($pluginClass, $pluginMethod)
 
 class boot
 {
-    
-    public static function init($pkg, $controller, $method)
+
+    public static function init($package, $controller, $method)
     {
-        if ($pkg) {
+    	if ($package) {
+    		
+    		$pkg = $package;
             session::init();
             // require_once ("controllers/$pkg/" . $controller . ".php"); # Codigo depreciado para vers��o 0.4
-            require_once ("packages/$pkg/controllers/" . $controller . ".php");
-            debug::log("include file packages/$pkg/controllers/" . $controller . ".php");
-            debug::log("Loading $pkg / $method");
+            require_once ("packages/$package/controllers/" . $controller . ".php");
+            debug::log("include file packages/$package/controllers/" . $controller . ".php");
+            debug::log("Loading $package/ $method");
             ob_start();
             $control = new $controller();
             if (method_exists($control, $method)) {
@@ -61,14 +66,14 @@ class boot
 
 class controller
 {
-    
+
     // private $view;
     public $request;
-    
+
     public $requestType;
-    
+
     public $cookie;
-    
+
     function __construct()
     {
         // $this->view = new view ();
@@ -92,7 +97,7 @@ class controller
 
 class model
 {
-    
+
     function __construct()
     {
         // $this->view = new view ();
@@ -113,35 +118,35 @@ class model
 
 final class page
 {
-    
+
     private static $theme;
-    
+
     private static $body;
-    
+
     private static $jsfile = array();
-    
+
     private static $cssfile = array();
-    
+
     private static $jscode = array();
-    
+
     private static $csscode = array();
-    
+
     private static $code = array();
-    
+
     private static $title;
-    
+
     private static $lang;
-    
+
     private static $description;
-    
+
     private static $robots;
-    
+
     private static $keywords;
-    
+
     private static $page;
-    
+
     private static $callme = array();
-    
+
     public static function initialize()
     {
         self::$theme = config::theme();
@@ -150,46 +155,46 @@ final class page
         // ob_end_clean ();
         self::$body = array();
     }
-    
+
     public static function addCssFile($filePath)
     {
         self::$cssfile[] = $filePath;
     }
-    
+
     public static function addJsFile($filePath)
     {
         self::$jsfile[] = $filePath;
     }
-    
+
     public static function addJsScript($script)
     {
         self::$jscode[] = $script;
     }
-    
+
     public static function addCssScript($script)
     {
         self::$csscode[] = $script;
     }
-    
+
     public static function addBody($body)
     {
         $idx = md5($body);
         self::$body[$idx] .= $body;
         // self::$body [] .= $body;
     }
-    
+
     public static function addCode($position, $cod)
     {
         self::$code[$position] .= $cod;
     }
-    
+
     public static function setTheme($theme)
     {
         if (is_dir("themes/$theme")) {
             self::$private = $theme;
         }
     }
-    
+
     public static function render($body = "index")
     {
         $idx = md5(debug_backtrace()[1]['file']);
@@ -277,7 +282,7 @@ final class page
                 }
             } else {
                 
-                global $_execute;
+                $_execute = kernel::execute();
                 if (file_exists("themes/" . self::$theme . "/$_execute.html")) {
                     $bodyFile = file("themes/" . self::$theme . "/$_execute.html");
                 } else {
@@ -448,10 +453,14 @@ final class page
         }
         exit();
     }
-    
+
     public static function renderAjax()
     {
-        foreach (self::$body as $b) {
+    	header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    	header("Cache-Control: post-check=0, pre-check=0", false);
+    	header("Pragma: no-cache");
+    	header("Content-Type: text/plain");
+    	foreach (self::$body as $b) {
             echo $b;
         }
         die();
@@ -460,24 +469,29 @@ final class page
 
 class session
 {
-    
-    private $openAllController;
-    
+
+    //private $openAllController;
+    private static $ses;
+   
+
     public static function init()
     {
+        if ( database::kolibriDB()) {
+            self::$ses = new sessionDB();
+        }
         session_start();
     }
-    
+
     public static function set($key, $value)
     {
         $_SESSION[$key] = $value;
     }
-    
+
     public static function get($key)
     {
         return $_SESSION[$key];
     }
-    
+
     public static function destroy()
     {
         session_start();
@@ -486,3 +500,87 @@ class session
     }
 }
 
+class sessionDB
+{
+
+    private $db;
+
+    function __construct()
+    {
+        $sql = "CREATE TABLE IF NOT EXISTS `sessions` (
+                  `id` varchar(32) NOT NULL,
+                  `access` int(10) unsigned DEFAULT NULL,
+                  `data` text,
+                  PRIMARY KEY (`id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;";
+        $this->db = new mydataobj();
+        $this->db->setconn(database::kolibriDB());
+        $this->db->query($sql);
+        
+        session_set_save_handler(array(
+            $this,
+            "_open"
+        ), array(
+            $this,
+            "_close"
+        ), array(
+            $this,
+            "_read"
+        ), array(
+            $this,
+            "_write"
+        ), array(
+            $this,
+            "_destroy"
+        ), array(
+            $this,
+            "_gc"
+        ));
+    }
+
+    function _open()
+    {
+        if ($this->db) {
+            // Return True
+            return true;
+        }
+        // Return False
+        return false;
+    }
+
+    function _close()
+    {
+        unset($this->db);
+        return true;
+    }
+
+    function _read($id)
+    {
+        $this->db->query("SELECT data FROM sessions WHERE id = '$id'");
+        return $this->db->getdata();
+    }
+
+    function _write($id, $data)
+    {
+        
+        // Create time stamp
+        $access = time();
+        
+        // Set query
+        $this->db->query("REPLACE INTO sessions VALUES ('$id', '$access', '$data')");
+    }
+
+    function _destroy($id)
+    {
+        $this->db->query("DELETE FROM sessions WHERE id = '$id'");
+        return true;
+    }
+
+    function _gc($max)
+    {
+        $old = time() - $max;
+        
+        // Set query
+        $this->db->query("DELETE * FROM sessions WHERE access < '$old'");
+    }
+}

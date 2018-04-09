@@ -1,6 +1,6 @@
 	
 - ACLs
-	- Sistema de selects de inclusão de ACLs não retorna lista de perfis
+	- Sistema de selects de inclus��o de ACLs n��o retorna lista de perfis
 	( Problemas de acesso resolve isso )  
 	
 	
@@ -11,11 +11,19 @@
 - Instalador
 	- Identificar a existencia do config.php
 	- Identificar a existencia do database.php
-	- Questionar modo de funcionamento do sistema de segurança aberto/fechado
-	
+	- Questionar modo de funcionamento do sistema de seguran��a aberto/fechado
+	- sistema deve detectar problemas de acesso ao Banco de dados
 	
 	
 - Gestor de conteudo
 	- Ambiente para cadastro de coneudo com nome
-	- Vizualização de conteudo com base na URL   http://server/index.php/content/my-page-name
+	- Vizualiza����o de conteudo com base na URL   http://server/index.php/content/my-page-name
 	
+	
+MydataOBJ
+	- Adiconar suporte ao php PDO com suporte ao postregresql e outros bancos  (feito)
+	
+Namespace Plugins  ( FEITO )
+   - Suporte a Namespace para plugins
+   
+Suporte a modo API REST

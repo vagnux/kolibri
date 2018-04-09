@@ -168,6 +168,6 @@ $dadosboleto["cidade_uf"] = "Cidade / Estado";
 $dadosboleto["cedente"] = "Coloque a Razão Social da sua empresa aqui";
 
 // NÃO ALTERAR!
-include("include/funcoes_bancoob.php");
-include("include/layout_bancoob.php");
+include("../Kolibri-v0.8.2/plugins/phpboleto/include/funcoes_bancoob.php");
+include("../Kolibri-v0.8.2/plugins/phpboleto/include/layout_bancoob.php");
 ?>

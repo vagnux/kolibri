@@ -52,8 +52,8 @@ class profile extends controller {
 
     private function profileName($idprofile) {
         $sys = new auth();
-        $sys->loadProfile($idprofile);
-        return $sys->getprofileName();
+        $sys->profile->load($idprofile);
+        return $sys->profile->getname();
     }
 
     function listUsers() {
@@ -61,10 +61,18 @@ class profile extends controller {
         $m = new profileModel();
         $list = $m->listUsersProfile($this->request['idprofile']);
         $i = 0;
-
-        foreach ($list['idprofile'] as $idprofile) {
-            $list['profile'][$i] = $this->profileName($idprofile);
+        if ( count($list)) {
+        foreach ($list['users_idusers'] as $iduser) {
+        	$sys = new auth();
+        	$sys->users->load($iduser);
+        	$list['iduser'][$i] = $iduser;
+        	$list['login'][$i] = $sys->users->getlogin();
+        	$list['username'][$i] = $sys->users->getuserName();
+        	$list['profile'][$i] = $this->profileName($this->request['idprofile']);
+        	$list['datacreate'][$i] = $sys->users->getdataCreate();
+        	$list['datemodify'][$i] = $sys->users->getdateModify();
             $i++;
+        }
         }
         unset($list['idProfile']);
         $v->listUsers($list);
@@ -73,9 +81,9 @@ class profile extends controller {
     function delProfile() {
         $m = new profileModel();
         $list = $m->listUsersProfile($this->request['idprofile']);
-        if ( count($list['iduser']) == 0 ) {
+        if ( count($list['users_idusers']) == 0 ) {
             $mdel = new profileModel();
-         
+            debug::log("RECEBUI ORDEM APAGAR " . $this->request['idprofile']);
             $mdel->deleteProfile($this->request['idprofile']);
              $this->index();
         }else{

@@ -24,17 +24,27 @@ class autenticator extends model {
 		parent::__construct();
 	}
 	
-	function authentic($login,$pass) {
+	function authentic($login,$pass,$key='') {
 
 		$auth = new auth();
-		
-		if ($auth->valide($login, $pass)) {
-			return 1;
-		} else {
-			return 0;
+		$out = 0;
+		if ($auth->users->authUser($login, $pass)) {
+			$out = 1;
+		} 
+		if ( count($key)) {
+			//$login = $auth->valideKey($key);
+			if ( $login ) {
+				session::init ();
+				session::set ( "login", $login);
+				session::set ( "logged","on");
+				session::set('authorized',true);
+			}
 		}
-		
+		return $out;
 	}
+	
+	
+	
 	function register() {
 		session::init ();
 		session::set ( "login", $this->request ['login'] );

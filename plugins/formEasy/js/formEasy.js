@@ -76,7 +76,7 @@
                                     alert("Numero de celular invalido");
                                 }
                             });
-
+                       
 
                         } else if ($(this).hasClass("html-form-hora")) {
                             $(this).attr("size", settings["horaMask"].length).attr("maxlength", settings["horaMask"].length).keypress(function (event) {
@@ -152,14 +152,23 @@
                         var msg = "Os seguintes erros foram encontrados:\n\n";
 
                         //Verifica se campos do tipo input e select obrigatÃ³rios nÃ£o foram preenchidos
-                        $this.find("input[type='text'], input[type='date'], input[type='time'], input[type='password'], select").each(function () {
+                        $this.find("input[type='text'], input[type='date'], input[type='time'], input[type='password'],input[type='hidden'], select").each(function () {
                          
                             if ($(this).hasClass("html-form-obrigatorio") && $(this).val() == "") {
                                 formStatusField = false;
                                 msg += $("label[for='" + $(this).attr("id") + "']").text() + " deve ser preenchido.\n";
                             }
+                            if ($(this).hasClass("passwordNameVerify")) {
+                            	var fieldName = $('#passwordFieldName').val();
+                            	
+                            	if (  $("[name='" + fieldName + "A']").val() !=  $("[name='" + fieldName + "B']").val() ) {
+                            		 msg += "Campos de Senha precisam ser iguais\n";
+                            	}
+                            }
+                            
                         });
-
+                        
+                       
                         //Verifica se campos do tipo textarea obrigatÃ³rios nÃ£o foram preenchidos devidamente
                         $this.find("textarea").each(function () {
                             var textfield = $.trim($(this).val());

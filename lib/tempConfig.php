@@ -20,17 +20,17 @@
 
 
 //config::set("theme","default");
-config::set("theme","barton");
+config::set("theme","material");
 
 
 $spliter = explode('index.php', $_SERVER['REQUEST_URI']);
 
 //Website URL
-config::set("siteRoot",'http://' . $_SERVER['HTTP_HOST'] .  $spliter[0]);
+#config::set("siteRoot",'http://' . $_SERVER['HTTP_HOST'] .  $spliter[0]);
 
 
 // Default Controller
-config::set("defaultController","start");
+config::set("defaultController","setup");
 
 
 

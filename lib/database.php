@@ -41,7 +41,8 @@ class database {
 	}
 	
 	public static function __callstatic($conectionName, $arg) {
-		if ((self::$connections [$conectionName] ['type']) == 'mysql') {
+		/*
+	    if ((self::$connections [$conectionName] ['type']) == 'mysql') {
 			if (function_exists ( "mysqli_connect" )) {
 				if ((self::$connections [$conectionName] ['host'])) {
 					$link = mysqli_connect ( self::$connections [$conectionName] ['host'], self::$connections [$conectionName] ['user'], self::$connections [$conectionName] ['pass'], self::$connections [$conectionName] ['database'], self::$connections [$conectionName] ['port'] ) or self::failMysqlConnection( $link );
@@ -76,6 +77,19 @@ class database {
 				//page::render ();
 			}
 		}
+		*/
+	    if ((self::$connections [$conectionName] ['host'])) {
+	        #database::add("kolibriDB","mysql" , "192.168.1.4", "3306", "root", "123456", "kolibri");
+	        #database::add("kolibriDB","sqlite" , __DIR__ . "../data/menu.sqlite", "", "", "", "kolibri");
+	        try {
+	        $link = new PDO( self::$connections [$conectionName] ['type'] . ':host=' . self::$connections [$conectionName] ['host'] . ';port='  . self::$connections [$conectionName] ['port']  . ';dbname=' . self::$connections [$conectionName] ['database'], self::$connections [$conectionName] ['user'], self::$connections [$conectionName] ['pass'] );
+	        } catch (PDOException $e) {
+	            debug::log("Database Error: " . $e->getMessage());
+	            debug::log("Database info:" .  self::$connections [$conectionName] ['type'] . ':host=' . self::$connections [$conectionName] ['host'] . ';port='  . self::$connections [$conectionName] ['port']  . ';dbname=' . self::$connections [$conectionName] ['database'], self::$connections [$conectionName] ['user'], self::$connections [$conectionName] ['pass'] );
+	        }
+	    }
+	    
+	    
 		return $link;
 	}
 	public static function getType($conectionName) {

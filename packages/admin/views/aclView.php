@@ -25,6 +25,7 @@ class aclView {
 		$form = new formEasy ();
 		if (is_array ( $arrayAcl ['idacl'] )) {
 			foreach ( $arrayAcl ['idacl'] as $acls ) {
+				
 				$arrayAcl ['Control'] [$i] = $form->formActionButton ( config::siteRoot () . "/index.php/acl/aclRemove/", "Delete", array (
 						"idacl" => $acls,
 						"idprofile" => $idprofile 
@@ -37,7 +38,15 @@ class aclView {
 		page::addBody ( $form->formActionButton ( config::siteRoot () . "/index.php/acl/newAcl/", "New ACL", array (
 				"idgroup" => $ids 
 		) ) );
-		page::addBody ( $tbl->loadTable ( $arrayAcl ) );
+		
+		$out['Page'] = $arrayAcl['page'];
+		$out['Group'] = $arrayAcl['Group'];
+		$out['Profile'] = $arrayAcl['Profile'];
+		$out['Created'] = $arrayAcl['dataCreate'] ;
+		$out['Modify'] = $arrayAcl['dataModify'] ;
+		$out['Control'] = $arrayAcl['Control'] ;
+		
+		page::addBody ( $tbl->loadTable ( $out) );
 		
 		page::render ();
 	}
@@ -55,9 +64,9 @@ class aclView {
 		$form = new formEasy ();
 		$form->action ( config::siteRoot () . "/index.php/acl/saveAcl/" )->method ( 'post' )->openform ();
 		$form->addSelect ( "Page", 'page', $pgArray, '', 1 );
-		$form->addSelectAjaxTarget ( "Group", "group", $groupList, $arrayUser ['idgroup'], 'profile', "$site/index.php/users/ajaxProfile/" );
-		$form->addSelect ( "Profile", "profile", $profileList, $arrayUser ['idprofile'], 1 );
-		$form->type ( 'submit' )->value ( 'Save' )->done ();
+		$form->addSelectAjaxTarget ( "Group", "group", $groupList, $arrayUser ['idgroup'], 'idprofile', "$site/index.php/users/ajaxProfile/" );
+		$form->addSelect ( "Profile", "idprofile", $profileList, $arrayUser ['idprofile'], 1 );
+		$form->type ( 'submit' )->class('btn btn-primary')->value ( 'Save' )->done ();
 		$form->type ( 'hidden' )->name ( 'userid' )->value ( $arrayUser ['userid'] )->done ();
 		$form->closeForm ();
 		page::addBody ( $form->printform () );

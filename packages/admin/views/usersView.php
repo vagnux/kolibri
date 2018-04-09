@@ -24,12 +24,12 @@ class usersView {
     function newUser() {
         $form = new formEasy();
         $form->openForm();
-        $form->addText("Nome", 'nome', '', 1);
+        $form->addText("Name", 'nome', '', 1);
         $form->addText("E-mail ", 'login', '', 1);
-        $form->addText("Organização ", 'group', '', 1);
-        $form->addPasswordCad('Senha', 'senha', '', 1);
+        $form->addText("Organizartion ", 'group', '', 1);
+        $form->addPasswordCad('Password', 'senha', '', 1);
         $form->addcapcha();
-        $form->type('submit')->value('Enviar')->done();
+        $form->type('submit')->value('Save')->done();
         page::addBody($form->printform());
         page::render();
     }
@@ -37,12 +37,12 @@ class usersView {
     function listaGroups($groupArray) {
         $table = new htmlTable();
         page::addBody("<h3>Users Manager</h3>");
-        $tbl['Grupos'] = $groupArray['name'];
+        $tbl['Groups'] = $groupArray['name'];
         $i = 0;
         $form = new formEasy();
         foreach ($groupArray['idgroup'] as $ids) {
             //$tbl['Controle'][$i] = "<form method='post' action='::siteroot::/index.php/users/listUser/'> <input type='hidden' name='idgroup' value='$ids'><input type='submit' value= 'Users'> </form>";
-            $tbl['Controle'][$i] = $form->formActionButton('::siteroot::/index.php/users/listUser/', 'Users',array('idgroup'=>$ids));
+            $tbl['Control'][$i] = $form->formActionButton('::siteroot::/index.php/users/listUser/', 'Users',array('idgroup'=>$ids));
             $i++;
         }
         page::addBody($table->loadTable($tbl));
@@ -62,7 +62,7 @@ class usersView {
         if (is_array($userArray)) {
             foreach ($userArray['iduser'] as $ids) {
                 //$tbl['Controle'][$i] = "<form method='post' action='::siteroot::/index.php/users/userEdit/'> <input type='hidden' name='iduser' value='$ids'><input type='submit' value= 'Edit'> </form>";
-                $tbl['Controle'][$i] = $form->formActionButton('::siteroot::/index.php/users/userEdit/', 'Edit',array('iduser'=>$ids));
+                $tbl['Control'][$i] = $form->formActionButton('::siteroot::/index.php/users/userEdit/', 'Edit',array('iduser'=>$ids));
                 $i++;
             }
         }
@@ -70,7 +70,7 @@ class usersView {
         $form->method('post')->action(config::siteRoot() . '/index.php/users/userEdit/')->openForm();
         $form->type('hidden')->name('groupid')->value( $userArray['groupid'])->done();
        
-        $form->type("submit")->value("New User")->done();
+        $form->type("submit")->class('btn btn-primary')->value("New User")->done();
        
         $form->closeForm();
        
@@ -82,7 +82,12 @@ class usersView {
     }
 
     function userEdit($arrayUser,$groupList,$profileList) {
-    	page::addBody("<h3>Editing user " . $arrayUser['login']  . "</h3>");
+    	if ( $arrayUser['login'] ) {
+    		page::addBody("<h3>Editing user " . $arrayUser['login']  . "</h3>");
+    	}else{
+    		page::addBody("<h3>New user</h3>");
+    	}
+    	
         $site = config::siteRoot();
         
         $form = new formEasy();
@@ -94,7 +99,7 @@ class usersView {
         $form->addText('Created', '', $arrayUser['dataCreated']);
         $form->addText('Modified', '', $arrayUser['dataModified']);
         $form->addPasswordCad("Password", 'password', '');
-        $form->type('submit')->value('Save')->done();
+        $form->type('submit')->class('btn btn-primary')->value('Save')->done();
         $form->type('hidden')->name('userid')->value($arrayUser['userid'])->done();
         $form->closeForm();
         page::addBody($form->printform());
@@ -103,7 +108,7 @@ class usersView {
 
     function groupAjax($groupArray) {
         $i=0;
-        $cod .=  "<option value=''>Selecione</option>";
+        $cod .=  "<option value=''>Select</option>";
         foreach ( $groupArray['idgroup']  as $id ) {
             $name = $groupArray['name'][$i];
             $cod .=  "<option value='$id'>$name</option>";
@@ -125,6 +130,7 @@ class usersView {
         }
         }
        // page::addBody(json_encode($groupArray));
+        debug::log($cod);
         page::addBody($cod);
         page::renderAjax();
     }

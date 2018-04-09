@@ -41,7 +41,7 @@ class setupView {
 		$form->addText ( "Site Name", 'siteName', 'Kolibri Framework');
 		$form->addText ( "Site URL", 'siteUrl', 'http://' . $url );
 		
-		$form->addSelect ( "Modo de segurança", 'secMode', $opt, '0' );
+		$form->addSelect ( "Security Mode", 'secMode', $opt, '0' );
 		$form->addhtml('<div id="database">');
 		$form->addPasswordCad ( 'Admin Password', 'adminPass', '' );
 		$form->addhtml('<hr>');
@@ -56,7 +56,7 @@ class setupView {
 		
 		$form->addhtml("</div>");
 		
-		$form->type ( 'submit' )->value ( 'Salvar' )->done ();
+		$form->type ( 'submit' )->class('btn btn-primary')->value ( 'Salvar' )->done ();
 
 
 		$form->closeForm ();

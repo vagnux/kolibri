@@ -21,12 +21,12 @@ class formEasy extends formElements {
 	private $formName;
 	function __construct() {
 		page::addJsFile ( '::siteroot::/vendors/jquery-ui/external/jquery/jquery.min.js' );
-		$jq = new jquery();
-		//page::addJsFile ( '::siteroot::/vendors/jquery-ui/jquery-ui.js' );
+		$jq = new jquery ();
+		// page::addJsFile ( '::siteroot::/vendors/jquery-ui/jquery-ui.js' );
 		page::addJsFile ( '::siteroot::/plugins/formEasy/js/formEasy.js' );
-		//page::addCssFile ( '::siteroot::/vendors/jquery-ui/jquery-ui.css' );
+		// page::addCssFile ( '::siteroot::/vendors/jquery-ui/jquery-ui.css' );
 	}
-	function addText($label, $name, $value, $obrigatorio = 0, $placeholder='', $required='',$pattern='') {
+	function addText($label, $name, $value, $obrigatorio = 0, $placeholder = '', $required = '', $pattern = '') {
 		$obrigatorio = $obrigatorio != 0 ? "html-form-obrigatorio" : "";
 		$this->addhtml ( '<div class="form-group">' );
 		$this->addhtml ( '<label for="' . $name . '">' . $label . '</label>' );
@@ -37,14 +37,14 @@ class formEasy extends formElements {
 		$obrigatorio = $obrigatorio != 0 ? " html-form-obrigatorio" : "";
 		$this->addhtml ( '<div class="form-group">' );
 		$this->addhtml ( '<label for="' . $name . '">' . $label . '</label>' );
-		$this->class ( 'form-control html-form-cpf' . $obrigatorio )->type ( 'text' )->value ( $value )->name ( $name )->id ( $name )->size ( 14 )->placeholder('000.000.000-00')->pattern('[0-9]{3}.[0-9]{3}.[0-9]{3}-[0-9]{2}')->maxlength ( 14 )->done ();
+		$this->class ( 'form-control html-form-cpf' . $obrigatorio )->type ( 'text' )->value ( $value )->name ( $name )->id ( $name )->size ( 14 )->placeholder ( '000.000.000-00' )->pattern ( '[0-9]{3}.[0-9]{3}.[0-9]{3}-[0-9]{2}' )->maxlength ( 14 )->done ();
 		$this->addhtml ( '</div>' );
 	}
 	function addCNPJ($label, $name, $value, $obrigatorio = 0) {
 		$obrigatorio = $obrigatorio != 0 ? " html-form-obrigatorio" : "";
 		$this->addhtml ( '<div class="form-group">' );
 		$this->addhtml ( '<label for="' . $name . '">' . $label . '</label>' );
-		$this->class ( 'form-control html-form-cnpj' . $obrigatorio )->type ( 'text' )->value ( $value )->name ( $name )->id ( $name )->placeholder('99.999.999/9999-99')->pattern('[0-9]{2}.[0-9]{3}.[0-9]{3}/[0-9]{4}-[0-9]{2}')->size ( 18 )->maxlength ( 18 )->done ();
+		$this->class ( 'form-control html-form-cnpj' . $obrigatorio )->type ( 'text' )->value ( $value )->name ( $name )->id ( $name )->placeholder ( '99.999.999/9999-99' )->pattern ( '[0-9]{2}.[0-9]{3}.[0-9]{3}/[0-9]{4}-[0-9]{2}' )->size ( 18 )->maxlength ( 18 )->done ();
 		$this->addhtml ( '</div>' );
 	}
 	function addData($label, $name, $value, $obrigatorio = 0) {
@@ -86,7 +86,7 @@ class formEasy extends formElements {
 		$obrigatorio = $obrigatorio != 0 ? " html-form-obrigatorio" : "";
 		$this->addhtml ( '<div class="form-group">' );
 		$this->addhtml ( '<label for="' . $name . '">' . $label . '</label>' );
-		$this->class ( 'form-control ' . $obrigatorio )->type ( 'textarea' )->value ( $value )->name ( $name )->id ( 'id'.$name )->done ();
+		$this->class ( 'form-control ' . $obrigatorio )->type ( 'textarea' )->value ( $value )->name ( $name )->id ( 'id' . $name )->done ();
 		$this->addhtml ( '</div>' );
 	}
 	function printform() {
@@ -185,8 +185,9 @@ class formEasy extends formElements {
 	function addPasswordCad($label, $name, $value, $obrigatorio = 0) {
 		$obrigatorio = $obrigatorio != 0 ? " html-form-obrigatorio" : "";
 		debug::log ( "password $name" );
-		$this->class ( 'form-control ' . $obrigatorio )->type ( 'password' )->value ( $value )->label ( $label )->name ( $name . "A" )->id ( $name + "A" )->size ( 10 )->maxlength ( 20 )->done ();
-		$this->class ( 'form-control ' . $obrigatorio )->type ( 'password' )->label ( "Confirmar " )->name ( $name . "B" )->id ( $name + "B" )->size ( 10 )->maxlength ( 20 )->done ();
+		$this->type ( 'hidden' )->value ( "$name" )->class ( 'passwordNameVerify' )->name ( "passwordFieldName" )->id ( "passwordFieldName" )->done ();
+		$this->class ( 'form-control  ' . $obrigatorio )->type ( 'password' )->value ( $value )->label ( $label )->name ( $name . "A" )->id ( $name + "A" )->size ( 10 )->maxlength ( 20 )->done ();
+		$this->class ( 'form-control  ' . $obrigatorio )->type ( 'password' )->label ( "Confirmar " )->name ( $name . "B" )->id ( $name + "B" )->size ( 10 )->maxlength ( 20 )->done ();
 	}
 	function addcapcha() {
 		page::addJsFile ( "https://www.google.com/recaptcha/api.js" );
@@ -202,9 +203,9 @@ class formEasy extends formElements {
 		// parent::name($this->name);
 		parent::openForm ();
 	}
-	function formActionButton($urlTarget, $buttonName, $varArrays = '',$target='_self') {
+	function formActionButton($urlTarget, $buttonName, $varArrays = '', $target = '_self') {
 		$myform = new formEasy ();
-		$myform->action ( $urlTarget )->method ( "post" )->target($target)->openForm ();
+		$myform->action ( $urlTarget )->method ( "post" )->target ( $target )->openForm ();
 		if (is_array ( $varArrays )) {
 			foreach ( $varArrays as $k => $v ) {
 				$myform->type ( "hidden" )->name ( $k )->value ( $v )->done ();
@@ -214,9 +215,9 @@ class formEasy extends formElements {
 		$myform->closeForm ();
 		return $myform->printform ();
 	}
-	function formActionIcon($urlTarget, $buttonName = '', $varArrays = '', $glyphicon = 'glyphicon glyphicon-cog', $onclick = '',$target='_self') {
+	function formActionIcon($urlTarget, $buttonName = '', $varArrays = '', $glyphicon = 'glyphicon glyphicon-cog', $onclick = '', $target = '_self') {
 		$myform = new formEasy ();
-		$myform->action ( $urlTarget )->method ( "post" )->target($target)->openForm ();
+		$myform->action ( $urlTarget )->method ( "post" )->target ( $target )->openForm ();
 		if (is_array ( $varArrays )) {
 			foreach ( $varArrays as $k => $v ) {
 				$myform->type ( "hidden" )->name ( $k )->value ( $v )->done ();

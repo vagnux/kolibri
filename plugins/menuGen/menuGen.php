@@ -57,7 +57,7 @@ class menuGen {
     private $id;
     private $idgroup;
     private $idprofile;
-    function __construct() {
+    function install() {
         if (database::kolibriDB ()) {
             if (database::getType ( 'kolibriDB' ) == 'mysql') {
                 $db = new mydataobj ();
@@ -104,6 +104,8 @@ class menuGen {
             }
         }
     }
+    
+    
     function load($menu) {
         $this->myMenu = $menu;
     }
@@ -187,7 +189,7 @@ class menuGen {
                 $table ['Sub Item'] [$z] = "<span class=\"" . $myArray ['icon'] [$z] . "\" aria-hidden=\"true\"></span>&nbsp;&nbsp;&nbsp;" . $myArray ['itemName'] [$z];
                 $table ['URL'] [$z] = $myArray ['address'] [$z];
                 if ($delBtn) {
-                    $table ['Action'] [$z] = $form->formActionIcon ( config::siteRoot () . "/index.php/menuManager/deleteItem/", "", array (
+                    $table ['Action'] [$z] = $form->formActionIcon ( config::siteRoot () . "/index.php/menuManager/deleteItem/", "Delete", array (
                         "idMenu" => $idMenu,
                         'idMenuItem' => $id
                     ), 'glyphicon glyphicon-trash' );
@@ -201,7 +203,7 @@ class menuGen {
     }
     function addMenu($menuName,$idgroup,$idprofile) {
         $db = new mydataobj ();
-        //$db->debug ( 1 );
+        $db->debug ( 1 );
         $db->setconn ( database::kolibriDB () );
         $db->setconType ( database::getType ( 'kolibriDB' ) );
         $db->settable ( 'menu' );
@@ -270,13 +272,27 @@ class menuGen {
     function listItemMenu($idMenu) {
         
         
-        $sql = "SELECT idParent, menuItem.idMenuItem, itemName, parentName, class, icon,  address, menuItem.idgroup, menuItem.idprofile, groups.name as groupName, profile.name as profileName
+        $s = new auth();
+		$groupid =  $s->getloggedGroupId();
+		$profileid = $s->getloggedProfileId();
+        
+        $sql = "SELECT 
+				idParent, 
+				menuItem.idMenuItem, 
+				itemName,
+				parentName, 
+				class, 
+				icon,  
+				address,
+				menuItem.idgroup, 
+				menuItem.idprofile 
 				FROM menuItem
 				left join ( SELECT idMenuItem, itemName as parentName FROM menuItem ) as P on ( P.idMenuItem = menuItem.idParent )
-				left join profile on ( profile.idprofile = menuItem.idprofile)
-				left join groups on ( profile.idgroup = menuItem.idgroup)
-				where idMenu = $idMenu and ativo = 1
-				order by idParent,itemName asc ";
+				and ativo = 1
+				and idMenu = '$idMenu' 
+				and ( idgroup is null or idgroup = '$groupid' )
+				and ( idprofile is null or idprofile = '$profileid' )
+				order by idParent,itemName asc";
         
         $db = new mydataobj ();
         //$db->debug ( 1 );

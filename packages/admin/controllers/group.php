@@ -24,7 +24,14 @@ class group extends controller {
     function index() {
         $m = new groupModel();
         $v = new groupView();
-        $v->listGroups($m->listGroup());
+        $lst = $m->listGroup();
+        $i=0;
+        foreach ( $lst['idgroup'] as $id ) {
+        	
+        	$lst['users'][$i] = $m->numUser($id);
+        	$i++;
+        }
+        $v->listGroups($lst);
     }
 
     function newGroup() {
@@ -34,7 +41,8 @@ class group extends controller {
     }
 
     function saveGroup() {
-
+    	debug::log("GRUPO " . $this->request['groupName']);
+    	
         $m = new groupModel();
         $m->setenable(1);
         $m->setname($this->request['groupName']);

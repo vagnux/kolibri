@@ -32,7 +32,7 @@ class loginForm {
 	function index(){
 		
 			
-		$action = config::siteRoot() . "index.php/login/autenticar/";
+		$action = config::siteRoot() . "/index.php/login/autenticar/";
 		$cod = ' <form id="signupform" class="form-horizontal" method="post" action="' . $action . '" role="form">
               <h1>Login Form </h1>
               <div>
@@ -57,7 +57,7 @@ class loginForm {
                 <br />
 
                 <div>
-                   <img width="15%" src="::siteroot::media/kolibriName.png">
+                   <img width="15%" src="::siteroot::/media/kolibriName.png">
                  
                 </div>
               </div>
@@ -67,7 +67,7 @@ class loginForm {
 		page::addCssFile('aquivo.css');
 		page::addCssScript('csscode!!!!!');
 		page::addJsFile('arquivos.js');
-		page::addJsScript('alert("oi");');
+		
 		page::addBody($cod);
 		page::render();
 	}

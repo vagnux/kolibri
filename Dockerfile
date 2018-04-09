@@ -1,12 +1,13 @@
 # Dockerfile
 FROM nimmis/apache-php5
 
-MAINTAINER Vagner Rodrigues <vagnux@gmail.com>
+MAINTAINER SemaphoreCI <dev@semaphoreci.com>
 
 ADD . /var/www/html
+RUN chmod 777 -R /var/www/html/config
+RUN chmod 777 -R /var/www/html/media
 
 EXPOSE 80
 EXPOSE 443
-CMD ["/bin/chmod 777 /var/www/html/config"]
-CMD ["/bin/chmod 777 /var/www/html/media"]
+
 CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]

@@ -36,13 +36,28 @@ class users extends controller {
 		$list = $m->userList ( $this->request ['idgroup'] );
 		$i = 0;
 		if (is_array ( $list )) {
-			foreach ( $list ['idprofile'] as $idprofile ) {
-				$list ['profile'] [$i] = $this->profileName ( $idprofile );
+			foreach ( $list ['iduser'] as $iduser) {
+				$sys = new auth();
+				$sys->group->load($list ['groups_idgroup'][$i]);
+				$sys->users->load($iduser);
+				$sys->groupsprofiles->load($iduser);
+				$sys->group->load($sys->groupsprofiles->getgroups_idgroup());
+				$sys->profile->load($sys->groupsprofiles->getprofile_idprofile());
+				
+				$out ['group'] [$i] = $sys->group->getname();
+				$out['iduser'][$i] = $iduser;
+				$out['login'][$i] = $sys->users->getlogin();
+				$out['username'][$i] = $sys->users->getuserName();
+				$out['profile'] [$i] = $sys->profile->getname();
+				$out['datacreate'][$i] = $sys->users->getdataCreate();
+				$out['datemodify'][$i] = $sys->users->getdateModify();
 				$i ++;
+				unset($sys);
 			}
 		}
+		
 		unset ( $list ['idProfile'] );
-		$v->listUsers ( $list );
+		$v->listUsers ( $out);
 	}
 	function userEdit() {
 		$m = new userModel ();
@@ -78,6 +93,7 @@ class users extends controller {
 	function ajaxProfile() {
 		$m = new userModel ();
 		$v = new usersView ();
+		
 		$v->profilesAjax ( $m->getprofileList ( $this->request ['group'] ) );
 	}
 	function saveUser() {
@@ -90,13 +106,16 @@ class users extends controller {
 		$oldPass = $this->request [''];
 		$newPass = $this->request ['password'];
 		$userId = $this->request ['userid'];
+		$this->request ['idgroup'] = $this->request ['group'];
 		if ($m->saveUser ( $login, $userName, $groupId, $profileId, $oldPass, $newPass, $userId )) {
-			$v = new usersView ();
-			$v->listUsers ( $m->userList ( $this->request ['group'] ) );
+			//$v = new usersView ();
+			//$v->listUsers ( $m->userList ( $this->request ['group'] ) );
+			$this->listUser();
 		} else {
 			page::addJsScript ( "alert('Usuario ja existente');" );
-			$v = new usersView ();
-			$v->listUsers ( $m->userList ( $this->request ['group'] ) );
+			//$v = new usersView ();
+			//$v->listUsers ( $m->userList ( $this->request ['group'] ) );
+			$this->listUser();
 		}
 	}
 }
