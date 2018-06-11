@@ -24,7 +24,7 @@ class auth {
 	public $acl;
 	public $group;
 	public $profile;
-	public $user;
+	public $users;
 	public $groupsprofiles;
 	public $userObj;
 	function __construct() {
@@ -43,7 +43,7 @@ class auth {
 		$this->profile = new auth\profile ();
 		$this->users = new auth\users ();
 		$this->groupsprofiles = new auth\userProfileGroup ();
-		//$this->userObj= new auth\userObject('', '');
+		$this->userObj= new auth\userObject();
 	}
 	function getloggedGroupId() {
 		$this->users->loadLogin ( session::get ( 'login' ) );

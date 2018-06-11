@@ -19,7 +19,7 @@
  */
 namespace auth {
 
-	class userObject extends \stdClass {
+	class userObject {
 		private $users_idusers;
 		private $objectName;
 		private $jsonObject;
@@ -27,10 +27,9 @@ namespace auth {
 			$sql = "CREATE TABLE `userObject` (
 			  `users_idusers` int(11) NOT NULL,
 			  `objectName` varchar(100) DEFAULT NULL,
-			  `jsonObject` blob DEFAULT NULL,
-			  KEY `fk_userObject_users1_idx` (`users_idusers`),
-			  CONSTRAINT `fk_userObject_users1` FOREIGN KEY (`users_idusers`) REFERENCES `users` (`idusers`) ON DELETE NO ACTION ON UPDATE NO ACTION
+			  `jsonObject` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 
 						";
 			$db = new \mydataobj ();
@@ -38,24 +37,35 @@ namespace auth {
 			$db->query ( $sql );
 			unset ( $db );
 		}
-		function __construct($users_idusers, $objectName) {
-			
-			if ($users_idusers and $objectName) {
-				$this->users_idusers = $users_idusers;
-				$this->objectName = $objectName;
-				$this = $this->loadObject ( $users_idusers, $objectName );
+		function search($value,$objectName='') {
+			if ($value) {
+				if ( $objectName ) {
+					$sql2 = " objectName = '$objectName' and ";
+				}
+				$sql = "SELECT * FROM kolibri.userObject where $sql2 JSON_SEARCH(jsonObject, 'one', '%$value%') IS NOT NULL;";
+				$db = new \mydataobj ();
+				$db->setconn ( \database::kolibriDB () );
+				$db->query ( $sql );
+				$i = 0;
+				while ( $db->getusers_idusers () ) {
+					$out ['idusers'] [$i] = $db->getusers_idusers ();
+					$out ['objectName'] [$i] = $db->getobjectName ();
+					$db->next ();
+					$i ++;
+				}
 			}
+			return $out;
 		}
-		private function setusers_idusers($value) {
+		function setusers_idusers($value) {
 			$this->users_idusers = $value;
 		}
-		private function getusers_idusers() {
+		function getusers_idusers() {
 			return $this->users_idusers;
 		}
-		private function setobjectName($value) {
+		function setobjectName($value) {
 			$this->objectName = $value;
 		}
-		private function getobjectName() {
+		function getobjectName() {
 			return $this->objectName;
 		}
 		private function setjsonObject($value) {
@@ -64,12 +74,17 @@ namespace auth {
 		private function getjsonObject() {
 			return $this->jsonObject;
 		}
-		private function listuserObject() {
+		function listuserObject() {
 			$db = new \mydataobj ();
 			$db->setconn ( \database::kolibriDB () );
 			$db->settable ( "userObject" );
 			$this->setusers_idusers ( $db->getusers_idusers () );
-			// $db->addkey("ativo", 1);
+			if ($this->getusers_idusers ()) {
+				$db->addkey ( 'users_idusers', $this->getusers_idusers () );
+			}
+			if ($this->getobjectName ()) {
+				$db->addkey ( 'objectName', $this->getobjectName () );
+			}
 			$i = 0;
 			while ( $db->getusers_idusers () ) {
 				$out ['users_idusers'] [$i] = $db->getusers_idusers ();
@@ -80,7 +95,7 @@ namespace auth {
 			}
 			return $out;
 		}
-		private function load($users_idusers, $objectName) {
+		function load($users_idusers, $objectName) {
 			$db = new \mydataobj ();
 			$db->setconn ( \database::kolibriDB () );
 			// $db->debug(1);
@@ -91,6 +106,9 @@ namespace auth {
 			$this->setusers_idusers ( $db->getusers_idusers () );
 			$this->setobjectName ( $db->getobjectName () );
 			$this->setjsonObject ( $db->getjsonObject () );
+			$out = new \stdClass();
+			$out = json_decode($this->getjsonObject());
+			return $out;
 		}
 		private function delete($users_idusers, $objectName) {
 			$db = new \mydataobj ();
@@ -110,22 +128,11 @@ namespace auth {
 			$db->setjsonObject ( $this->getjsonObject () );
 			$db->save ();
 		}
-		private function loadObject($users_idusers, $objectName) {
-			$obj = new \stdClass ();
-			$this->load ( $users_idusers, $objectName );
-			$obj = json_decode ( $this->getjsonObject () );
-			return $obj;
-		}
-		private function saveObject($users_idusers, $objectName, $obj) {
+		function save($users_idusers, $objectName, $obj) {
 			$this->setusers_idusers ( $users_idusers );
 			$this->setobjectName ( $objectName );
 			$this->setjsonObject ( json_encode ( $obj ) );
 			$this->saveData ();
-		}
-		function save() {
-			if ($this->users_idusers and $this->objectName) {
-				$this->saveObject ( $this->users_idusers, $this->objectName, $this );
-			}
 		}
 	}
 }

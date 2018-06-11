@@ -62,6 +62,7 @@ class usersView {
         if (is_array($userArray)) {
             foreach ($userArray['iduser'] as $ids) {
                 //$tbl['Controle'][$i] = "<form method='post' action='::siteroot::/index.php/users/userEdit/'> <input type='hidden' name='iduser' value='$ids'><input type='submit' value= 'Edit'> </form>";
+                $tbl['App tokens'][$i] = $form->formActionButton('::siteroot::/index.php/apptokens/index/', 'App tokens',array('iduser'=>$ids));
                 $tbl['Control'][$i] = $form->formActionButton('::siteroot::/index.php/users/userEdit/', 'Edit',array('iduser'=>$ids));
                 $i++;
             }

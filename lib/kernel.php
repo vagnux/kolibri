@@ -148,8 +148,19 @@ class kernel {
 		}
 		
 		//Oauth
-		if ( getvar('access_token') and ! (session::get ( "logged" ) == "on")) {
-			
+		if ( getvar('access_token') ) {
+			$security = new auth ();
+			$data = $security->userObj->search(getvar('access_token'),'oauth');
+			debug::log("OAUTH ativado");
+			if ( $data['idusers'][0] ) {
+				debug::log("OAUTH PARA: " . $data['idusers'][0]);
+				$security->users->load($data['idusers'][0]);
+				session::init ();
+				session::set ( "login", $security->users->getlogin());
+				debug::log("OAUTH PARA: " . $security->users->getlogin());
+				session::set('authorized',true);
+				session::set ( "logged","on");
+			}
 		}
 		
 		if (session::get ( "logged" ) == "on") {

@@ -127,7 +127,7 @@ access::add(\"ctrlTest\",\"login\");";
             $dbData = $this->request['kdbServerData'];
             
             database::add('kolibriDB', "$dbType", "$dbHost", "$dbPort", "$dbUser", "$dbPass", "$dbData");
-            $links = mysqli_connect($dbHost, $dbUser, $dbPass, $dbData, $dbPort) or die($this->fail());
+            $links = mysqli_connect($dbHost, $dbUser, $dbPass, $dbData, $dbPort) or die("DATABASE Access Error");
             
             if (database::kolibriDB()) {
                 $auth = new auth();
@@ -137,7 +137,7 @@ access::add(\"ctrlTest\",\"login\");";
                 $auth->profile->install();
                 $auth->acl->install();
                 $auth->groupsprofiles->install();
-                //$auth->userObj->install();
+                $auth->userObj->install();
                 
                 // creating groups
                 $auth->group->setname('Admin Group');

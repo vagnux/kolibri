@@ -273,29 +273,30 @@ class menuGen {
         
         
         $s = new auth();
-		$groupid =  $s->getloggedGroupId();
-		$profileid = $s->getloggedProfileId();
+        $groupid =  $s->getloggedGroupId();
+        $profileid = $s->getloggedProfileId();
         
-        $sql = "SELECT 
-				idParent, 
-				menuItem.idMenuItem, 
+        $sql = "SELECT
+				idParent,
+				menuItem.idMenuItem,
 				itemName,
-				parentName, 
-				class, 
-				icon,  
+				parentName,
+				class,
+				icon,
 				address,
-				menuItem.idgroup, 
-				menuItem.idprofile 
+				menuItem.idgroup,
+				menuItem.idprofile
 				FROM menuItem
 				left join ( SELECT idMenuItem, itemName as parentName FROM menuItem ) as P on ( P.idMenuItem = menuItem.idParent )
 				and ativo = 1
-				and idMenu = '$idMenu' 
+				and idMenu = '$idMenu'
 				and ( idgroup is null or idgroup = '$groupid' )
 				and ( idprofile is null or idprofile = '$profileid' )
+                where idMenu = '$idMenu'
 				order by idParent,itemName asc";
         
         $db = new mydataobj ();
-        //$db->debug ( 1 );
+        #$db->debug ( 1 );
         $db->setconn ( database::kolibriDB () );
         $db->setconType ( database::getType ( 'kolibriDB' ) );
         $db->query ( $sql );

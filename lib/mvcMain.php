@@ -19,7 +19,8 @@
  * along with Kolibri. If not, see <http://www.gnu.org/licenses/>.
  */
 
-define('kversion',20180308);
+define('kversion',20180505);
+
 
 function templateCall($pluginClass, $pluginMethod)
 {
@@ -459,7 +460,7 @@ final class page
     	header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
     	header("Cache-Control: post-check=0, pre-check=0", false);
     	header("Pragma: no-cache");
-    	header("Content-Type: text/plain");
+   
     	foreach (self::$body as $b) {
             echo $b;
         }
