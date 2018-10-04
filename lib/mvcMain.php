@@ -537,6 +537,7 @@ class sessionDB
             $this,
             "_gc"
         ));
+        return true;
     }
 
     function _open()
@@ -569,6 +570,7 @@ class sessionDB
         
         // Set query
         $this->db->query("REPLACE INTO sessions VALUES ('$id', '$access', '$data')");
+        return true;
     }
 
     function _destroy($id)
@@ -583,5 +585,6 @@ class sessionDB
         
         // Set query
         $this->db->query("DELETE * FROM sessions WHERE access < '$old'");
+        return true;
     }
 }
