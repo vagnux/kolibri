@@ -24,7 +24,12 @@ class config {
 		self::$vars[$key] = $value;
 	}
 	public static function __callstatic($key, $arg){
-		return self::$vars[$key];
+	    if ( self::$vars[$key] ) {
+		  return self::$vars[$key];
+		
+	    }else {
+	        return false;
+	    }
 	}
 }
 
@@ -35,7 +40,11 @@ class accesspkg {
 		self::$vars[$key] = $value;
 	}
 	public static function __callstatic($key, $arg){
+	    if ( self::$vars[$key] ) {
 		return self::$vars[$key];
+	    }else {
+	        return false;
+	    }
 	}
 }
 

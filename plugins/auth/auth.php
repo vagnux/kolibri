@@ -113,5 +113,11 @@ class auth {
 		return $out;
 		// return natcasesort($out);
 	}
+	
+	function delete($userId) {
+	    $this->users->load($userId);
+	    $this->users->setenable('0');
+	    $this->users->save();
+	}
 }
     

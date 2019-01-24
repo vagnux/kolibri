@@ -33,6 +33,7 @@ class users extends controller {
 	function listUser() {
 		$m = new userModel ();
 		$v = new usersView ();
+		
 		$list = $m->userList ( $this->request ['idgroup'] );
 		$i = 0;
 		if (is_array ( $list )) {
@@ -104,9 +105,10 @@ class users extends controller {
 		$groupId = $this->request ['group'];
 		$profileId = $this->request ['profile'];
 		$oldPass = $this->request [''];
-		$newPass = $this->request ['password'];
+		$newPass = $this->request ['passwordA'];
 		$userId = $this->request ['userid'];
 		$this->request ['idgroup'] = $this->request ['group'];
+		if (  $this->request ['passwordA'] and $this->request ['login'] and $this->request ['group']  and $this->request ['profile'] ) {
 		if ($m->saveUser ( $login, $userName, $groupId, $profileId, $oldPass, $newPass, $userId )) {
 			//$v = new usersView ();
 			//$v->listUsers ( $m->userList ( $this->request ['group'] ) );
@@ -117,5 +119,11 @@ class users extends controller {
 			//$v->listUsers ( $m->userList ( $this->request ['group'] ) );
 			$this->listUser();
 		}
+		}else{
+		    page::addJsScript ( "alert('Dados incompletos operação cancelada');" );
+		    $this->listUser();
+		}
+		    
+		
 	}
 }

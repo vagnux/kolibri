@@ -52,6 +52,10 @@ class mydataobj implements mydataobjInterface
 
     private $order = array();
 
+    private $limitStart = '';
+
+    private $limitEnd = '';
+
     function __call($method, $value)
     {
         foreach ($value as $v) {
@@ -59,18 +63,17 @@ class mydataobj implements mydataobjInterface
                 $out = $v;
             }
         }
-        
+
         if (substr($method, 0, 3) == 'get') {
 
             $param = substr($method, 3);
-            
+
             return $this->getvalueKey($param);
         }
-        
+
         if (substr($method, 0, 3) == 'set') {
             $key = substr($method, 3);
-            
-                       
+
             return $this->setvalue($key, addslashes($out));
         }
     }
@@ -100,8 +103,9 @@ class mydataobj implements mydataobjInterface
             $this->conType = $dbServer;
         } catch (PDOException $e) {
             debug::log("Database Error: " . $e->getMessage());
+            return $e->getMessage();
         }
-        
+
         return $this->conn;
     }
 
@@ -120,18 +124,24 @@ class mydataobj implements mydataobjInterface
         if (! $conn) {
             $conn = $this->conn;
         }
-        if ( $conn ) {
-        if ($this->debugdata) {
-            debug::log("QUERY: $sql");
-        }
-        
-        $result = $this->conn->prepare($sql);
-        $result->execute();
-        $this->dataArray = array();
-        $this->line = 0;
-        
-        $this->result = $result;
-        return $this->result;
+        if ($conn) {
+            if ($this->debugdata) {
+                debug::log("QUERY: $sql");
+            }
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
+            $result = $this->conn->prepare($sql);
+            try {
+                $out = $result->execute();
+
+                $this->dataArray = array();
+                $this->line = 0;
+
+                $this->result = $result;
+                return $this->result;
+            } catch (PDOException $e) {
+                debug::log("Database Error: " . $e->getMessage());
+                return $e->getMessage();
+            }
         }
         return false;
     }
@@ -150,17 +160,17 @@ class mydataobj implements mydataobjInterface
         if (! $result) {
             $result = $this->result;
         }
-        
+
         if ($result) {
             if ((count($this->dataArray) == 0) and ! $this->line) {
                 $r = $result->fetchAll(PDO::FETCH_ASSOC);
                 $this->line = 0;
-                
+
                 $i = 0;
                 foreach ($r as $z => $row) {
-                    
+
                     foreach ($row as $k => $v) {
-                        
+
                         $this->dataArray[$i][$k] = $v;
                     }
                     $i ++;
@@ -197,33 +207,32 @@ class mydataobj implements mydataobjInterface
     private function getvalueKey($key)
     {
         if (! $this->result) {
-            
+
             if ($this->debugdata) {
                 debug::log("No result for get$key()");
             }
-            
+
             if (! $this->query) {
-                
+
                 if ($this->debugdata) {
                     debug::log("Calling select query");
                 }
-                
+
                 $this->result = $this->selectquery();
             }
         }
-        
+
         if ($this->fieldsloaded == 0) {
             $this->data = $this->fetch_assoc($this->result);
-            
+
             $this->fieldsloaded = 1;
         }
         if ($this->debugdata) {
             debug::log(print_r($this->data, true));
             debug::log("Get $key value: " . $this->data[$key]);
         }
-       
+
         return $this->data[$key];
-     
     }
 
     private function setvalue($key, $value)
@@ -233,11 +242,11 @@ class mydataobj implements mydataobjInterface
         } else {
             $this->fields[$key] = $value;
         }
-        
+
         if ($this->debugdata) {
-        	debug::log("SET $key = $value");
+            debug::log("SET $key = $value");
         }
-        
+
         return $this->fields[$f];
     }
 
@@ -258,52 +267,58 @@ class mydataobj implements mydataobjInterface
         $this->line = 0;
         $this->data = '';
         $this->line = 0;
-        
+
         if ($this->debugdata) {
             debug::log("Reset executed");
         }
     }
 
-    private function fieldList($table) {
-    	$lst = array();
-    	$db = new mydataobj();
-    	$db->setconn($this->conn);
-    	if ( $this->conType == 'sqlite') {
-    		$db->query("PRAGMA table_info('$table'");
-    		while ( $db->getname()) {
-    			$lst[] = $db->getname();
-    			$db->next();
-    		}
-    	}
-    	if ( $this->conType == 'mysql') {
-    		$db->query("show fields from $table");
-    		while ( $db->getField()) {
-    			$lst[] = $db->getField();
-    			$db->next();
-    		}
-    	}
-    	return $lst;
-    	
+    private function fieldList($table)
+    {
+        $lst = array();
+        $db = new mydataobj();
+        $db->setconn($this->conn);
+        if ($this->conType == 'sqlite') {
+            $db->query("PRAGMA table_info('$table'");
+            while ($db->getname()) {
+                $lst[] = $db->getname();
+                $db->next();
+            }
+        }
+        if ($this->conType == 'mysql') {
+            $db->query("show fields from $table");
+            while ($db->getField()) {
+                $lst[] = $db->getField();
+                $db->next();
+            }
+        }
+        return $lst;
     }
-    
+
     function save()
     {
         if (count($this->keys) > 0) {
-            
+
             $query = $this->updatequery();
             if ($this->debugdata) {
                 debug::log("starting  query : " . $query);
             }
-            $this->query($query);
+            return $this->query($query);
         } else {
             $query = $this->insertquery();
             if ($this->debugdata) {
                 debug::log("starting query.. : " . $query);
             }
-            $this->query($query);
-            
+            $out = $this->query($query);
+
             $sql = "SELECT LAST_INSERT_ID() AS lastinsertid ";
-            $this->query($sql);
+            $outb = $this->query($sql);
+
+            if ($out) {
+                return $out;
+            } else {
+                return $outb;
+            }
         }
     }
 
@@ -315,15 +330,15 @@ class mydataobj implements mydataobjInterface
     function delkey($key)
     {
         $aux = '';
-        
+
         foreach (array_keys($this->keys) as $a) {
-            
+
             if ($a != $key) {
-                
+
                 $aux[$a] = $this->keys[$a];
             }
         }
-        
+
         $this->keys = '';
         $this->keys = array();
         $this->keys = $aux;
@@ -331,106 +346,109 @@ class mydataobj implements mydataobjInterface
 
     private function insertquery()
     {
-       /* if ($this->conType == 'mysql') {
-            if ($this->debugdata) {
-                debug::log("mysql selected");
-            }
-            $sql = "show fields from $this->table";
-        }
-        
-        if ($this->conType == 'sqlite') {
-            if ($this->debugdata) {
-                debug::log("sqlite selected");
-            }
-            $sql = "PRAGMA table_info('$this->table')";
-        }
-        
-        if ($this->debugdata) {
-            debug::log("running query : " . $sql);
-        }
-        $result = $this->query($sql);
-        
-        $sql = '';
-        $fieldList = '';
-        $v = 0;
-        while ($res = $this->fetch_assoc($result)) {
-            
-            if ($this->conType == 'mysql') {
-                $field = $res['Field'];
-            }
-            if ($this->conType == 'sqlite') {
-                $field = $res['name'];
-            }
-            
-            if (! $v) {
-                if ($this->fields[$field]) {
-                    $sql .= "'" . $this->fields[$field] . "'";
-                    $fieldList .= $field;
-                    $v ++;
-                }
+        /*
+         * if ($this->conType == 'mysql') {
+         * if ($this->debugdata) {
+         * debug::log("mysql selected");
+         * }
+         * $sql = "show fields from $this->table";
+         * }
+         *
+         * if ($this->conType == 'sqlite') {
+         * if ($this->debugdata) {
+         * debug::log("sqlite selected");
+         * }
+         * $sql = "PRAGMA table_info('$this->table')";
+         * }
+         *
+         * if ($this->debugdata) {
+         * debug::log("running query : " . $sql);
+         * }
+         * $result = $this->query($sql);
+         *
+         * $sql = '';
+         * $fieldList = '';
+         * $v = 0;
+         * while ($res = $this->fetch_assoc($result)) {
+         *
+         * if ($this->conType == 'mysql') {
+         * $field = $res['Field'];
+         * }
+         * if ($this->conType == 'sqlite') {
+         * $field = $res['name'];
+         * }
+         *
+         * if (! $v) {
+         * if ($this->fields[$field]) {
+         * $sql .= "'" . $this->fields[$field] . "'";
+         * $fieldList .= $field;
+         * $v ++;
+         * }
+         * } else {
+         * if ($this->fields[$field]) {
+         * $sql .= ",'" . $this->fields[$field] . "'";
+         * $fieldList .= "," . $field;
+         * }
+         * }
+         * }
+         */
+        $fields = $this->fieldList($this->table);
+        foreach ($fields as $f) {
+            if ($this->fields[$f]) {
+                $v[] = "'" . $this->fields[$f] . "'";
             } else {
-                if ($this->fields[$field]) {
-                    $sql .= ",'" . $this->fields[$field] . "'";
-                    $fieldList .= "," . $field;
-                }
+                $v[] = "null";
             }
-        }*/
-    	$fields = $this->fieldList($this->table);
-    	foreach ( $fields as $f  ) {
-    		if ( $this->fields[$f]) { 
-    			$v[] = "'" . $this->fields[$f] . "'";
-    		}else{
-    			$v[] = "null";
-    		}
-    	}
-    	$fieldList = implode(",",$fields);
-    	$sql = implode(",",$v);
+        }
+        $fieldList = implode(",", $fields);
+        $sql = implode(",", $v);
         $sqlQuery = "insert into $this->table ($fieldList) values ($sql)";
-        
+
         return $sqlQuery;
     }
 
     private function updatequery()
     {
-       // $sql = "show fields from $this->table";
-        
+        // $sql = "show fields from $this->table";
         $result = $this->query($sql);
-        
+
         $sql = " update $this->table set ";
         $v = 0;
-        
+
         $fields = $this->fieldList($this->table);
-        foreach ( $fields as $f ) {
-        	if (array_key_exists($f, $this->fields)) {
-        		$rule[] = " $f='" . $this->fields[$f] . "'";
-        	}
-        }
-        $sql .= implode(",",$rule);
-       /* while ($res = $this->fetch_assoc($result)) {
-            
-           
-            $field = $res['Field'];
-            
-            if (! $v) {
-                if (array_key_exists($field, $this->fields)) {
-                    $sql .= " $field='" . $this->fields[$field] . "'";
-                    $v ++;
-                }
-            } else {
-                if (array_key_exists($field, $this->fields)) {
-                    $sql .= ", $field='" . $this->fields[$field] . "'";
-                }
+        foreach ($fields as $f) {
+            if (array_key_exists($f, $this->fields)) {
+                $rule[] = " $f='" . $this->fields[$f] . "'";
             }
-        }*/
-        
+        }
+        $sql .= implode(",", $rule);
+        /*
+         * while ($res = $this->fetch_assoc($result)) {
+         *
+         *
+         * $field = $res['Field'];
+         *
+         * if (! $v) {
+         * if (array_key_exists($field, $this->fields)) {
+         * $sql .= " $field='" . $this->fields[$field] . "'";
+         * $v ++;
+         * }
+         * } else {
+         * if (array_key_exists($field, $this->fields)) {
+         * $sql .= ", $field='" . $this->fields[$field] . "'";
+         * }
+         * }
+         * }
+         */
+
         $sql .= " where ";
-        
+
         $aux = '';
-        
+
         $and = 0;
-        
+
         foreach (array_keys($this->keys) as $a) {
-            
+
             if (! $and) {
                 if (is_array($this->keys[$a])) {
                     $elements = $this->keys[$a];
@@ -458,21 +476,25 @@ class mydataobj implements mydataobjInterface
                 }
             }
         }
-        
+
         return $sql;
     }
 
-    private function selectquery()
+    private function selectquery($count = false)
     {
-        $sql = "select * from $this->table";
-        
+        if (! $count) {
+            $sql = "select * from $this->table";
+        } else {
+            $sql = "select count(*) as total from $this->table";
+        }
+
         if (count($this->keys)) {
-            
+
             $sql .= " where ";
             $and = 0;
-            
+
             foreach (array_keys($this->keys) as $a) {
-                
+
                 if (! $and) {
                     if (is_array($this->keys[$a])) {
                         $elements = $this->keys[$a];
@@ -514,7 +536,10 @@ class mydataobj implements mydataobjInterface
             }
             $sql .= " asc";
         }
-        
+
+        if ((strlen($this->limitStart) > 0) and (strlen($this->limitEnd) > 0) and ($this->conType == 'mysql') and (! $count)) {
+            $sql .= " LIMIT " . $this->limitStart . ',' . $this->limitEnd;
+        }
         if ($this->debugdata) {
             debug::log("$sql");
         }
@@ -529,7 +554,7 @@ class mydataobj implements mydataobjInterface
             if (count(array_keys($this->keys)) > 0) {
                 $and = 0;
                 foreach (array_keys($this->keys) as $a) {
-                    
+
                     if (! $and) {
                         if (is_array($this->keys[$a])) {
                             $elements = $this->keys[$a];
@@ -557,7 +582,7 @@ class mydataobj implements mydataobjInterface
                         }
                     }
                 }
-                
+
                 $deleteQuery = "delete from " . $this->table . " where " . $sql;
                 $this->query($deleteQuery);
             }
@@ -570,6 +595,23 @@ class mydataobj implements mydataobjInterface
             debug::log("Add order $key");
         }
         array_push($this->order, $key);
+    }
+
+    function setlimit($start = 0, $end = 20)
+    {
+        $this->limitStart = $start;
+        $this->limitEnd = $end;
+    }
+
+    function numRegisters()
+    {
+        $this->result = $this->selectquery(true);
+        $this->data = $this->fetch_assoc($this->result);
+        if ($this->debugdata) {
+            debug::log(print_r($this->data, true));
+            debug::log("Get total value: " . $this->data['total']);
+        }
+        return $this->data['total'];
     }
 }
 

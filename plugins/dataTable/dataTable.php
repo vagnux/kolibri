@@ -97,7 +97,7 @@ class dataTable extends htmlTable {
 		
 		page::addCssScript ( $css );
 		
-		$tab = '<div class="boxTable">' . parent::loadTable ( $table ) . "</div>";
+		$tab = '<div id="boxTable" name="boxTable" class="boxTable table-responsive">' . parent::loadTable ( $table ) . "</div>";
 		
 		$this->id = 'tbl' . $id;
 		

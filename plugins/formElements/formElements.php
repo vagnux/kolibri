@@ -19,6 +19,7 @@
  */
 class formElements {
 	private $type;
+	private $enctype;
 	private $value;
 	public $name;
 	private $id;
@@ -69,6 +70,7 @@ class formElements {
 	
 	function reset() {
 		$this->type = '';
+		$this->enctype = '';
 		$this->value = '';
 		$this->name = '';
 		$this->id = '';
@@ -156,8 +158,8 @@ class formElements {
 		if ($this->action) {
 			$output .= " action='" . $this->action . "' ";
 		}
-		if ($this->type) {
-			$output .= " enctype='" . $this->type . "' ";
+		if ($this->enctype) {
+		    $output .= " enctype='" . $this->enctype . "' ";
 		}
 		if ($this->target) {
 			$output .= " target='" . $this->target . "' ";
@@ -527,7 +529,10 @@ class formElements {
 		
 		if (($this->type == 'checkbox')) {
 			
-			$this->result = "<input type='checkbox' ";
+		    if ($this->label) {
+		        $this->result = "<label class='label_" . $this->class . "'>";
+		    }
+			$this->result .= "<input type='checkbox' ";
 			if ($this->name) {
 				$this->result .= " name='" . $this->name . "' ";
 			}
@@ -537,9 +542,9 @@ class formElements {
 			if ($this->class) {
 				$this->result .= " class='" . $this->class . "' ";
 			}
-			if ($this->label) {
+			/*if ($this->label) {
 				$this->result .= " label='" . $this->label . "' ";
-			}
+			}*/
 			if ($this->disabled) {
 				$this->result .= " disabled='" . $this->disabled . "' ";
 			}
@@ -554,7 +559,7 @@ class formElements {
 			}
 			
 			if ($this->label) {
-				$this->result .= ">" . $this->label . "\n";
+				$this->result .= ">" . $this->label . "</label>\n";
 			} else {
 				$this->result .= ">\n";
 			}

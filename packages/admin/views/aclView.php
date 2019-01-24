@@ -57,6 +57,31 @@ class aclView {
 				$pgArray [$i] [0] = $pages;
 				$pgArray [$i] [1] = $pages;
 				$i ++;
+				
+				//GET
+				$pgArray [$i] [0] = $pages . ':GET';
+				$pgArray [$i] [1] = $pages . ':GET';
+				$i ++;
+				
+				//POST
+				$pgArray [$i] [0] = $pages . ':POST';
+				$pgArray [$i] [1] = $pages . ':POST';
+				$i ++;
+				
+				//PUT
+				$pgArray [$i] [0] = $pages . ':PUT';
+				$pgArray [$i] [1] = $pages . ':PUT';
+				$i ++;
+
+				//DELETE
+				$pgArray [$i] [0] = $pages . ':DELETE';
+				$pgArray [$i] [1] = $pages . ':DELETE';
+				$i ++;
+				
+				//PATCH
+				$pgArray [$i] [0] = $pages . ':PATCH';
+				$pgArray [$i] [1] = $pages . ':PATCH';
+				$i ++;
 			}
 		}
 		$site = config::siteRoot ();

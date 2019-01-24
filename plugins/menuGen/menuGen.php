@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (C) 2016 vagner
  *
@@ -26,24 +27,25 @@
  * submenu[1]['link'] = "URL"
  *
  */
-function makeTreeArray($originalArray, $target = 0) {
+function makeTreeArray($originalArray, $target = 0)
+{
     $a = $originalArray;
     $i = 0;
     $n = 0;
-    if (is_array ( $originalArray )) {
-        foreach ( $a ['idMenuItem'] as $idItem ) {
-            if ($target == $a ['idParent'] [$i]) {
-                $out [$n] ['name'] = $a ['itemName'] [$i];
-                $out [$n] ['id'] = $a ['idMenuItem'] [$i];
-                $out [$n] ['icon'] = $a ['icon'] [$i];
-                $out [$n] ['class'] = $a ['class'] [$i];
-                $out [$n] ['idprofile'] = $a ['idprofile'] [$i];
-                $out [$n] ['idgroup'] = $a ['idgroup'] [$i];
-                if (count ( makeTreeArray ( $originalArray, $a ['idMenuItem'] [$i] ) )) {
-                    $out [$n] ['link'] = makeTreeArray ( $originalArray, $a ['idMenuItem'] [$i] );
+    if (is_array($originalArray)) {
+        foreach ($a['idMenuItem'] as $idItem) {
+            if ($target == $a['idParent'][$i]) {
+                $out[$n]['name'] = $a['itemName'][$i];
+                $out[$n]['id'] = $a['idMenuItem'][$i];
+                $out[$n]['icon'] = $a['icon'][$i];
+                $out[$n]['class'] = $a['class'][$i];
+                $out[$n]['idprofile'] = $a['idprofile'][$i];
+                $out[$n]['idgroup'] = $a['idgroup'][$i];
+                if (count(makeTreeArray($originalArray, $a['idMenuItem'][$i]))) {
+                    $out[$n]['link'] = makeTreeArray($originalArray, $a['idMenuItem'][$i]);
                 } else {
-                    
-                    $out [$n] ['link'] = $a ['address'] [$i];
+
+                    $out[$n]['link'] = $a['address'][$i];
                 }
                 $n ++;
             }
@@ -52,17 +54,25 @@ function makeTreeArray($originalArray, $target = 0) {
     }
     return $out;
 }
-class menuGen {
+
+class menuGen
+{
+
     private $myMenu;
+
     private $id;
+
     private $idgroup;
+
     private $idprofile;
-    function install() {
-        if (database::kolibriDB ()) {
-            if (database::getType ( 'kolibriDB' ) == 'mysql') {
-                $db = new mydataobj ();
-                //$db->debug ( 1 );
-                $db->setconn ( database::kolibriDB () );
+
+    function install()
+    {
+        if (database::kolibriDB()) {
+            if (database::getType('kolibriDB') == 'mysql') {
+                $db = new mydataobj();
+                // $db->debug ( 1 );
+                $db->setconn(database::kolibriDB());
                 $sql = "CREATE TABLE  IF NOT EXISTS `menu` (
 		          `idMenu` int(11) NOT NULL AUTO_INCREMENT,
 		          `menuName` varchar(45) DEFAULT NULL,
@@ -71,9 +81,9 @@ class menuGen {
 				  `idprofile` int(11) DEFAULT NULL,
 		          PRIMARY KEY (`idMenu`)
 		        ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
-                $db->query ( $sql );
-                //debug::log ( '--------------------------------------------------------------' );
-                
+                $db->query($sql);
+                // debug::log ( '--------------------------------------------------------------' );
+
                 $sql = "CREATE TABLE  IF NOT EXISTS `menuItem` (
 		          `idMenuItem` int(11) NOT NULL AUTO_INCREMENT,
 		          `itemName` varchar(45) DEFAULT NULL,
@@ -91,191 +101,207 @@ class menuGen {
 		        ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
        				";
                 // Has a Mysql Access create table Menu
-                
-                $db->query ( $sql );
-                //debug::log ( '--------------------------------------------------------------' );
-            } elseif (database::getType ( 'kolibriDB' ) == 'sqlite') {
+
+                $db->query($sql);
+                // debug::log ( '--------------------------------------------------------------' );
+            } elseif (database::getType('kolibriDB') == 'sqlite') {
                 // or use SQL lite database
-                $db = new mydataobj ();
-                $db->setconn ( database::kolibriDB () );
-                $db->setconType ( 'sqlite' );
-                $db->query ( 'CREATE TABLE IF NOT EXISTS "menu" ("idMenu" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , "menuName" VARCHAR, "ativo" INTEGER)' );
-                $db->query ( "CREATE TABLE IF NOT EXISTS \"menuItem\" (\"idMenuItem\" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , \"itemName\" VARCHAR, \"idMenu\" INTEGER, \"idParent\" INTEGER check(typeof(\"idParent\") = 'integer') , \"address\" VARCHAR, \"class\" VARCHAR, \"name\" VARCHAR, \"id\" VARCHAR, \"icon\" VARCHAR, \"ativo\" INTEGER)" );
+                $db = new mydataobj();
+                $db->setconn(database::kolibriDB());
+                $db->setconType('sqlite');
+                $db->query('CREATE TABLE IF NOT EXISTS "menu" ("idMenu" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , "menuName" VARCHAR, "ativo" INTEGER)');
+                $db->query("CREATE TABLE IF NOT EXISTS \"menuItem\" (\"idMenuItem\" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , \"itemName\" VARCHAR, \"idMenu\" INTEGER, \"idParent\" INTEGER check(typeof(\"idParent\") = 'integer') , \"address\" VARCHAR, \"class\" VARCHAR, \"name\" VARCHAR, \"id\" VARCHAR, \"icon\" VARCHAR, \"ativo\" INTEGER)");
             }
         }
     }
-    
-    
-    function load($menu) {
+
+    function load($menu)
+    {
         $this->myMenu = $menu;
     }
-    function setId($id) {
+
+    function setId($id)
+    {
         $this->id = $id;
     }
-    function done() {
+
+    function done()
+    {
         /*
          * $out = '<nav id="' . $this->id . '">
          * <ul>' . "\n";
          */
-        $out .= $this->htmlTreeGen ( $this->myMenu );
+        $out .= $this->htmlTreeGen($this->myMenu);
         // $out .= "</ul></nav>\n";
         return $out;
     }
-    function htmlTreeGen($myArray, $idMenu = '', $delBtn = 0) {
+
+    function htmlTreeGen($myArray, $idMenu = '', $delBtn = 0)
+    {
         $out = "";
         // debug::log(print_r($myArray,true));
-        if (is_array ( $myArray )) {
-            foreach ( $myArray as $item ) {
-                if (is_array ( $item ['link'] )) {
+        if (is_array($myArray)) {
+            foreach ($myArray as $item) {
+                if (is_array($item['link'])) {
                     if (! $delBtn) {
                         $out .= "<li>
-	<a href=''>" . $item ['name'] . "</a>
+	<a href=''>" . $item['name'] . "</a>
 	<ul>\n";
                     } else {
-                        $form = new formEasy ();
-                        $cod = $form->formActionButton ( config::siteRoot () . "/index.php/menuManager/deleteItem/", "Delete", array (
-                            "idMenuItem" => $item ['id'],
+                        $form = new formEasy();
+                        $cod = $form->formActionButton(config::siteRoot() . "/index.php/menuManager/deleteItem/", "Delete", array(
+                            "idMenuItem" => $item['id'],
                             "idMenu" => $idMenu
-                        ) );
+                        ));
                         $out .= "<li>
-	<a href=''>" . $item ['name'] . "$cod</a>
+	<a href=''>" . $item['name'] . "$cod</a>
 	<ul>\n";
-                        unset ( $form );
+                        unset($form);
                     }
-                    $out .= $this->htmlTreeGen ( $item ['link'], $idMenu, $delBtn );
+                    $out .= $this->htmlTreeGen($item['link'], $idMenu, $delBtn);
                     $out .= "</ul>";
                 } else {
                     if (! $delBtn) {
-                        if ((strlen ( $item ['idprofile'] ) > 0) or (strlen ( $item ['idgroup'] ) > 0)) {
-                            $s = new auth ();
-                            $mygroup = $s->getloggedGroupId ();
-                            $myprofile = $s->getloggedProfileId ();
-                            if (($mygroup == $item ['idprofile']) or ($myprofile == $item ['idgroup'])) {
-                                $out .= "<li><a href='" . $item ['link'] . "'><i class=\"" . $item ['icon'] . "\" aria-hidden=\"true\"></i>&nbsp;&nbsp;&nbsp;" . $item ['name'] . "</a></li>\n";
+                        if ((strlen($item['idprofile']) > 0) or (strlen($item['idgroup']) > 0)) {
+                            $s = new auth();
+                            $mygroup = $s->getloggedGroupId();
+                            $myprofile = $s->getloggedProfileId();
+                            if (($mygroup == $item['idprofile']) or ($myprofile == $item['idgroup'])) {
+                                $out .= "<li><a href='" . $item['link'] . "'><i class=\"" . $item['icon'] . "\" aria-hidden=\"true\"></i>&nbsp;&nbsp;&nbsp;" . $item['name'] . "</a></li>\n";
                             }
-                            unset ( $s );
+                            unset($s);
                         } else {
-                            //<li><a><i class="fa fa-home"></i> Home <span class="fa fa-chevron-down"></span></a>
-                            $out .= "<li><a href='" . $item ['link'] . "'><i class=\"" . $item ['icon'] . "\" aria-hidden=\"true\"></i>&nbsp;&nbsp;&nbsp;" . $item ['name'] . "</a></li>\n";
+                            // <li><a><i class="fa fa-home"></i> Home <span class="fa fa-chevron-down"></span></a>
+                            $out .= "<li><a href='" . $item['link'] . "'><i class=\"" . $item['icon'] . "\" aria-hidden=\"true\"></i>&nbsp;&nbsp;&nbsp;" . $item['name'] . "</a></li>\n";
                         }
                     } else {
-                        $form = new formEasy ();
-                        $cod = $form->formActionButton ( config::siteRoot () . "/index.php/menuManager/deleteItem/", "Delete", array (
-                            "idMenuItem" => $item ['id'],
+                        $form = new formEasy();
+                        $cod = $form->formActionButton(config::siteRoot() . "/index.php/menuManager/deleteItem/", "Delete", array(
+                            "idMenuItem" => $item['id'],
                             "idMenu" => $idMenu
-                        ) );
-                        $out .= "<a href='" . $item ['link'] . "'><span class=\"" . $item ['icon'] . "\" aria-hidden=\"true\"></span>&nbsp;&nbsp;&nbsp;" . $item ['name'] . "</a>$cod</li>\n";
-                        unset ( $form );
+                        ));
+                        $out .= "<a href='" . $item['link'] . "'><span class=\"" . $item['icon'] . "\" aria-hidden=\"true\"></span>&nbsp;&nbsp;&nbsp;" . $item['name'] . "</a>$cod</li>\n";
+                        unset($form);
                     }
                 }
             }
         }
-        
+
         return $out;
     }
-    function htmlTreeTable($myArray, $idMenu = '', $delBtn = 0) {
+
+    function htmlTreeTable($myArray, $idMenu = '', $delBtn = 0)
+    {
         $z = 0;
-        $form = new formEasy ();
-        if (is_array ( $myArray ['idMenuItem'] )) {
-            foreach ( $myArray ['idMenuItem'] as $id ) {
-                
-                if (strlen ( $myArray ['parentName'] [$z] ) != 0) {
-                    $table ['Item'] [$z] = $myArray ['parentName'] [$z];
+        $form = new formEasy();
+        if (is_array($myArray['idMenuItem'])) {
+            foreach ($myArray['idMenuItem'] as $id) {
+
+                if (strlen($myArray['parentName'][$z]) != 0) {
+                    $table['Item'][$z] = $myArray['parentName'][$z];
                 } else {
-                    $table ['Item'] [$z] = '/';
+                    $table['Item'][$z] = '/';
                 }
-                $table['Group'][$z] =  $myArray ['groupName'] [$z];
-                $table['Profile'][$z] =  $myArray ['profileName'] [$z];
-                $table ['Sub Item'] [$z] = "<span class=\"" . $myArray ['icon'] [$z] . "\" aria-hidden=\"true\"></span>&nbsp;&nbsp;&nbsp;" . $myArray ['itemName'] [$z];
-                $table ['URL'] [$z] = $myArray ['address'] [$z];
+                $table['Group'][$z] = $myArray['groupName'][$z];
+                $table['Profile'][$z] = $myArray['profileName'][$z];
+                $table['Sub Item'][$z] = "<span class=\"" . $myArray['icon'][$z] . "\" aria-hidden=\"true\"></span>&nbsp;&nbsp;&nbsp;" . $myArray['itemName'][$z];
+                $table['URL'][$z] = $myArray['address'][$z];
                 if ($delBtn) {
-                    $table ['Action'] [$z] = $form->formActionIcon ( config::siteRoot () . "/index.php/menuManager/deleteItem/", "Delete", array (
+                    $table['Action'][$z] = $form->formActionIcon(config::siteRoot() . "/index.php/menuManager/deleteItem/", "Delete", array(
                         "idMenu" => $idMenu,
                         'idMenuItem' => $id
-                    ), 'glyphicon glyphicon-trash' );
+                    ), 'glyphicon glyphicon-trash');
                     ;
                 }
                 $z ++;
             }
         }
-        $t = new htmlTable ();
-        return $t->loadTable ( $table );
+        $t = new htmlTable();
+        return $t->loadTable($table);
     }
-    function addMenu($menuName,$idgroup,$idprofile) {
-        $db = new mydataobj ();
-        $db->debug ( 1 );
-        $db->setconn ( database::kolibriDB () );
-        $db->setconType ( database::getType ( 'kolibriDB' ) );
-        $db->settable ( 'menu' );
-        $db->setmenuName ( $menuName );
+
+    function addMenu($menuName, $idgroup, $idprofile)
+    {
+        $db = new mydataobj();
+        // $db->debug ( 1 );
+        $db->setconn(database::kolibriDB());
+        $db->setconType(database::getType('kolibriDB'));
+        $db->settable('menu');
+        $db->setmenuName($menuName);
         $db->setidgroup($idgroup);
         $db->setidgprofile($idprofile);
-        $db->setativo ( 1 );
-        $db->save ();
-        return $db->getlastinsertid ();
+        $db->setativo(1);
+        $db->save();
+        return $db->getlastinsertid();
     }
-    function listMenu() {
-        $db = new mydataobj ();
+
+    function listMenu()
+    {
+        $db = new mydataobj();
         // $db->debug(1);
-        
+
         $sql = "SELECT idMenu, menuName, ativo, groups.name as groupName, profile.name as profileName
 				FROM menu
 				left join groups on ( menu.idgroup = groups.idgroup )
 				left join profile on ( menu.idprofile = profile.idprofile )
 				where menu.ativo = 1";
-        
-        $db->setconn ( database::kolibriDB () );
-        $db->setconType ( database::getType ( 'kolibriDB' ) );
-        $db->settable ( 'menu' );
+
+        $db->setconn(database::kolibriDB());
+        $db->setconType(database::getType('kolibriDB'));
+        $db->settable('menu');
         $db->query($sql);
         $i = 0;
-        while ( $db->getidMenu () ) {
-            $out ['idMenu'] [$i] = $db->getidMenu ();
-            $out ['menuName'] [$i] = $db->getmenuName ();
-            $out ['groupName'] [$i] = $db->getgroupName ();
-            $out ['profileName'] [$i] = $db->getprofileName ();
+        while ($db->getidMenu()) {
+            $out['idMenu'][$i] = $db->getidMenu();
+            $out['menuName'][$i] = $db->getmenuName();
+            $out['groupName'][$i] = $db->getgroupName();
+            $out['profileName'][$i] = $db->getprofileName();
             $i ++;
-            $db->next ();
+            $db->next();
         }
         return $out;
     }
-    function delMenu($idMenu) {
-        $db = new mydataobj ();
+
+    function delMenu($idMenu)
+    {
+        $db = new mydataobj();
         // $db->debug(1);
-        $db->setconn ( database::kolibriDB () );
-        $db->setconType ( database::getType ( 'kolibriDB' ) );
-        $db->settable ( 'menu' );
-        $db->addkey ( 'ativo', 1 );
-        $db->addkey ( 'idMenu', $idMenu );
-        $db->setativo ( '-1' );
-        $db->save ();
+        $db->setconn(database::kolibriDB());
+        $db->setconType(database::getType('kolibriDB'));
+        $db->settable('menu');
+        $db->addkey('ativo', 1);
+        $db->addkey('idMenu', $idMenu);
+        $db->setativo('-1');
+        $db->save();
     }
-    function addItemMenu($idMenu, $itemName, $address, $idParent = 0, $class, $name, $id, $icon, $idgroup = '', $idprofile = '') {
-        $db = new mydataobj ();
+
+    function addItemMenu($idMenu, $itemName, $address, $idParent = 0, $class, $name, $id, $icon, $idgroup = '', $idprofile = '')
+    {
+        $db = new mydataobj();
         // $db->debug(1);
-        $db->setconn ( database::kolibriDB () );
-        $db->setconType ( database::getType ( 'kolibriDB' ) );
-        $db->settable ( 'menuItem' );
-        $db->setidMenu ( $idMenu );
-        $db->setitemName ( $itemName );
-        $db->setaddress ( $address );
-        $db->setidParent ( $idParent );
-        $db->setclass ( $class );
-        $db->setname ( $name );
-        $db->setid ( $id );
-        $db->seticon ( $icon );
-        $db->setidgroup ( $idgroup );
-        $db->setidprofile ( $idprofile );
-        $db->setativo ( 1 );
-        $db->save ();
+        $db->setconn(database::kolibriDB());
+        $db->setconType(database::getType('kolibriDB'));
+        $db->settable('menuItem');
+        $db->setidMenu($idMenu);
+        $db->setitemName($itemName);
+        $db->setaddress($address);
+        $db->setidParent($idParent);
+        $db->setclass($class);
+        $db->setname($name);
+        $db->setid($id);
+        $db->seticon($icon);
+        $db->setidgroup($idgroup);
+        $db->setidprofile($idprofile);
+        $db->setativo(1);
+        $db->save();
     }
-    function listItemMenu($idMenu) {
-        
-        
+
+    function listItemMenu($idMenu)
+    {
         $s = new auth();
-        $groupid =  $s->getloggedGroupId();
+        $groupid = $s->getloggedGroupId();
         $profileid = $s->getloggedProfileId();
-        
+
         $sql = "SELECT
 				idParent,
 				menuItem.idMenuItem,
@@ -294,106 +320,138 @@ class menuGen {
 				and ( idprofile is null or idprofile = '$profileid' )
                 where idMenu = '$idMenu'
 				order by idParent,itemName asc";
-        
-        $db = new mydataobj ();
-        #$db->debug ( 1 );
-        $db->setconn ( database::kolibriDB () );
-        $db->setconType ( database::getType ( 'kolibriDB' ) );
-        $db->query ( $sql );
+
+        $sql = "SELECT
+				menuItem.idParent,
+				menuItem.idMenuItem,
+				itemName,
+				parentName,
+				class,
+				icon,
+				address,
+				menuItem.idgroup,
+				menuItem.idprofile
+				FROM menuItem
+                left join ( SELECT idParent, idMenuItem, itemName as parentName FROM menuItem where idMenu = 2 and idParent is not null and ativo = 1 ) as P
+                on ( P.idParent = menuItem.idMenu ) 
+                where 
+                menuItem.ativo = 1
+				and menuItem.idMenu = '$idMenu'
+				and ( menuItem.idgroup is null or menuItem.idgroup = '$groupid' )
+				and ( menuItem.idprofile is null or menuItem.idprofile = '$profileid' )
+                order by menuItem.idParent,itemName asc";
+
+        $db = new mydataobj();
+        // $db->debug ( 1 );
+        $db->setconn(database::kolibriDB());
+        $db->setconType(database::getType('kolibriDB'));
+        $db->query($sql);
         // $db->settable('menuItem');
         // $db->addkey('ativo', 1);
         // $db->addkey('idMenu', $idMenu);
-        
+
         $i = 0;
-        while ( $db->getidMenuItem () ) {
-            $out ['idParent'] [$i] = $db->getidParent ();
-            $out ['idMenuItem'] [$i] = $db->getidMenuItem ();
-            $out ['itemName'] [$i] = $db->getitemName ();
-            $out ['address'] [$i] = $db->getaddress ();
-            $out ['parentName'] [$i] = $db->getparentName ();
-            $out ['class'] [$i] = $db->getclass ();
-            $out ['icon'] [$i] = $db->geticon ();
-            $out ['idgroup'] [$i] = $db->getidgroup ();
-            $out ['idprofile'] [$i] = $db->getidprofile ();
-            $out ['groupName'] [$i] = $db->getgroupName ();
-            $out ['profileName'] [$i] = $db->getprofileName ();
+        while ($db->getidMenuItem()) {
+            $out['idParent'][$i] = $db->getidParent();
+            $out['idMenuItem'][$i] = $db->getidMenuItem();
+            $out['itemName'][$i] = $db->getitemName();
+            $out['address'][$i] = $db->getaddress();
+            $out['parentName'][$i] = $db->getparentName();
+            $out['class'][$i] = $db->getclass();
+            $out['icon'][$i] = $db->geticon();
+            $out['idgroup'][$i] = $db->getidgroup();
+            $out['idprofile'][$i] = $db->getidprofile();
+            $out['groupName'][$i] = $db->getgroupName();
+            $out['profileName'][$i] = $db->getprofileName();
             $i ++;
-            $db->next ();
+            $db->next();
         }
-        
+
         return $out;
     }
-    function getTreeArrayMenu($idMenu) {
-        return makeTreeArray ( $this->listItemMenu ( $idMenu ) );
+
+    function getTreeArrayMenu($idMenu)
+    {
+        return makeTreeArray($this->listItemMenu($idMenu));
     }
-    function delItemMenu($idItemMenu) {
-        $db = new mydataobj ();
+
+    function delItemMenu($idItemMenu)
+    {
+        $db = new mydataobj();
         // $db->debug(1);
-        $db->setconn ( database::kolibriDB () );
-        $db->setconType ( database::getType ( 'kolibriDB' ) );
-        $db->settable ( 'menuItem' );
-        $db->addkey ( 'ativo', 1 );
-        $db->addkey ( 'idMenuItem', $idItemMenu );
-        $db->setativo ( '-1' );
-        $db->save ();
-        unset ( $db );
-        $db = new mydataobj ();
+        $db->setconn(database::kolibriDB());
+        $db->setconType(database::getType('kolibriDB'));
+        $db->settable('menuItem');
+        $db->addkey('ativo', 1);
+        $db->addkey('idMenuItem', $idItemMenu);
+        $db->setativo('-1');
+        $db->save();
+        unset($db);
+        $db = new mydataobj();
         // $db->debug(1);
-        $db->setconn ( database::kolibriDB () );
-        $db->setconType ( database::getType ( 'kolibriDB' ) );
-        $db->settable ( 'menuItem' );
-        $db->addkey ( 'ativo', 1 );
-        $db->addkey ( 'idParent', $idItemMenu );
-        $db->setativo ( '-1' );
-        $db->save ();
+        $db->setconn(database::kolibriDB());
+        $db->setconType(database::getType('kolibriDB'));
+        $db->settable('menuItem');
+        $db->addkey('ativo', 1);
+        $db->addkey('idParent', $idItemMenu);
+        $db->setativo('-1');
+        $db->save();
     }
-    function getMenuByName($name, $idHtml = '') {
-        if (database::kolibriDB ()) {
-            $db = new mydataobj ();
+
+    function getMenuByName($name, $idHtml = '')
+    {
+        if (database::kolibriDB()) {
+
+            $s = new auth();
+            $mygroup = $s->getloggedGroupId();
+            $myprofile = $s->getloggedProfileId();
+
+            $sql = "SELECT * FROM menu
+                where menuName = '$name'
+                and  ( idgroup = '$mygroup' or idgroup is null ) 
+                and  ( idprofile = '$myprofile' or idprofile is null )
+                and ativo = 1;";
+
+            $db = new mydataobj();
+
             // $db->debug(1);
-            $db->setconn ( database::kolibriDB () );
-            $db->setconType ( database::getType ( 'kolibriDB' ) );
-            $db->settable ( 'menu' );
-            $db->addkey ( 'menuName', $name );
-            $db->addkey ( 'ativo', 1 );
-            
-            $s = new auth ();
-            $mygroup = $s->getloggedGroupId ();
-            $myprofile = $s->getloggedProfileId ();
-            
-            //debug::log("idgroup e idprofile do usuario corrente :  $mygroup / $myprofile ");
-            
-            if ($db->getidMenu ()) {
-                
+            $db->setconn(database::kolibriDB());
+            $db->setconType(database::getType('kolibriDB'));
+            $db->query($sql);
+
+            // debug::log("idgroup e idprofile do usuario corrente : $mygroup / $myprofile ");
+
+            if ($db->getidMenu()) {
+
                 $idg = $db->getidgroup();
                 $idp = $db->getidprofile();
-                
-                //debug::log("idgroup e idprofile do menu corrente :  $idg / $idp ");
-                
-                if ((strlen ( $idg ) > 0) or (strlen ( $idp ) > 0)) {
+
+                // debug::log("idgroup e idprofile do menu corrente : $idg / $idp ");
+
+                if ((strlen($idg) > 0) or (strlen($idp) > 0)) {
                     if (($idg == $mygroup) or ($idp == $myprofile)) {
-                        $id = $db->getidMenu ();
-                        unset ( $db );
-                        $m = new menuGen ();
-                        $m->load ( $m->getTreeArrayMenu ( $id ) );
+                        $id = $db->getidMenu();
+                        unset($db);
+                        $m = new menuGen();
+                        $m->load($m->getTreeArrayMenu($id));
                         if (! $idHtml) {
-                            $m->setId ( $name );
+                            $m->setId($name);
                         } else {
-                            $m->setId ( $idHtml );
+                            $m->setId($idHtml);
                         }
-                        return $m->done ();
+                        return $m->done();
                     }
                 } else {
-                    $id = $db->getidMenu ();
-                    unset ( $db );
-                    $m = new menuGen ();
-                    $m->load ( $m->getTreeArrayMenu ( $id ) );
+                    $id = $db->getidMenu();
+                    unset($db);
+                    $m = new menuGen();
+                    $m->load($m->getTreeArrayMenu($id));
                     if (! $idHtml) {
-                        $m->setId ( $name );
+                        $m->setId($name);
                     } else {
-                        $m->setId ( $idHtml );
+                        $m->setId($idHtml);
                     }
-                    return $m->done ();
+                    return $m->done();
                 }
             } else {
                 return '';
@@ -402,10 +460,63 @@ class menuGen {
             return '';
         }
     }
-    function setprofile($idProfile) {
+
+    function setprofile($idProfile)
+    {
         $this->idprofile = $idProfile;
     }
-    function setgroup($idGroup) {
+
+    function setgroup($idGroup)
+    {
         $this->idgroup = $idGroup;
+    }
+
+    function getJsonMenu()
+    {
+        $s = new auth();
+        $groupid = $s->getloggedGroupId();
+        $profileid = $s->getloggedProfileId();
+
+        $sql = "SELECT 
+                menu.idMenu, 
+                menuName, 
+                itemName, 
+                address, 
+                class, 
+                name , 
+                id, 
+                icon  
+                FROM menu
+				join menuItem on ( menuItem.idMenu = menu.idMenu )
+                where  ( menu.idgroup = '$groupid' or menu.idgroup is null ) 
+                and  ( menu.idprofile = '$profileid' or menu.idprofile is null )
+                and ( menuItem.idgroup = '$groupid' or menuItem.idgroup is null ) 
+                and  ( menuItem.idprofile = '$profileid' or menuItem.idprofile is null )
+                and menu.ativo = 1
+                and menuItem.ativo = 1
+                group by  address
+                order by menuName asc , itemName asc ";
+
+        $db = new mydataobj();
+        $db->setconn(database::kolibriDB());
+        $db->setconType(database::getType('kolibriDB'));
+        $db->query($sql);
+
+        while ($db->getidMenu()) {
+
+            $out[$db->getmenuName()][] = array(
+                'idMenu' => $db->getidMenu(),
+                'menuName' => $db->getmenuName(),
+                'itemName' => $db->getitemName(),
+                'address' => str_replace('::siteroot::', config::siteRoot(),$db->getaddress()),
+                'class' => $db->getclass(),
+                'name' => $db->getname(),
+                'id' => $db->getid(),
+                'icon' => $db->geticon()
+            );
+            $db->next();
+        }
+
+        return json_encode($out);
     }
 }

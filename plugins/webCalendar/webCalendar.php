@@ -21,22 +21,27 @@
 class webCalendar {
 	private $codeOut;
 	private $defaultDate;
-	private $buttonIcons;
-	private $weekNumbers;
+	private $buttonIcons = 'true';
+	private $weekNumbers = 'false';
 	private $editable;
 	private $eventLimit;
 	private $values;
+	private $clickCode = '';
 	function __construct() {
 		
 		/*
 		 * <link href='../fullcalendar.css' rel='stylesheet' /> <link href='../fullcalendar.print.css' rel='stylesheet' media='print' /> <script src='../lib/moment.min.js'></script> <script src='../lib/jquery.min.js'></script> <script src='../fullcalendar.min.js'></script>
 		 */
+	    page::addJsFile ( '::siteroot::/vendors/fullcalendar/lib/jquery.min.js' );
 		page::addCssFile ( '::siteroot::/vendors/fullcalendar/fullcalendar.css' );
 		//page::addCssFile ( '::siteroot::/vendors/fullcalendar/fullcalendar.print.css' );
 		page::addJsFile ( '::siteroot::/vendors/fullcalendar/lib/moment.min.js' );
-		page::addJsFile ( '::siteroot::/vendors/fullcalendar/lib/jquery.min.js' );
+		
 		page::addJsFile ( '::siteroot::/vendors/fullcalendar/fullcalendar.min.js' );
-		page::addJsFile ( '::siteroot::/vendors/fullcalendar/lang-all.js' );
+		page::addJsFile ( '::siteroot::/vendors/fullcalendar/locale-all.js' );
+		
+		
+		$this->clickCode = 'alert(\'View: \' + eventObj.id);';
 		
 		/*
 		 * defaultDate: '2015-02-12', lang: pt-br, buttonIcons: false, // show the prev/next text weekNumbers: true, editable: true, eventLimit: true, // allow "more" link when too many events
@@ -45,13 +50,25 @@ class webCalendar {
 		$this->codeOut = "<script>
 				$(document).ready(function() {
 					$('#calendar').fullCalendar({\n
+                    eventStartEditable: false,
 					header: {
-						left: 'prev,next today',
+						left: 'prev,next',
 						center: 'title',
-						right: 'month,agendaWeek,agendaDay'
+						right: '',
+
 					},
+
+                     eventClick: function(eventObj, calEvent, jsEvent, view) {
+                       clickFunction(eventObj, calEvent, jsEvent, view);
+                    },
+                    
 				";
 	}
+	
+	function setclickCode($code) {
+	    $this->clickCode = $code;
+	}
+	
 	function setdefaultDate($defaultDate) {
 		$this->defaultDate = $defaultDate;
 	}
@@ -100,7 +117,8 @@ class webCalendar {
 		;
 		
 		$this->codeOut .= "defaultDate: '" . $this->defaultDate . "',\n";
-		$this->codeOut .= "lang: 'pt-br',\n";
+		$this->codeOut .= "lang: 'pt-BR',\n";
+		$this->codeOut .= "locale: 'pt-BR',\n";
 		$this->codeOut .= "buttonIcons: " . $this->buttonIcons . ",\n";
 		$this->codeOut .= "weekNumbers: " . $this->weekNumbers . ",\n";
 		$this->codeOut .= "editable: " . $this->editable . ",\n";
@@ -121,6 +139,13 @@ class webCalendar {
 							</style>
 							<div id='calendar'></div>
 							";
+		
+		
+		$js = 'function clickFunction(eventObj, calEvent, jsEvent, view) {
+        ' . $this->clickCode . ' 
+        }';
+	   page::addJsScript($js);
+	
 		
 		return $this->codeOut;
 	}

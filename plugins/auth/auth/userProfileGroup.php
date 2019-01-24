@@ -110,16 +110,23 @@ namespace auth {
 		}
 		
 		function listMembersGroup($group_idgroup) {
+		    
 			$db = new \mydataobj ();
 			$db->debug(1);
 			$db->setconn ( \database::kolibriDB () );
-			$db->settable ( "userProfileGroup" );
-			$db->addkey('groups_idgroup',$group_idgroup);
+			#$db->settable ( "userProfileGroup" );
+			#$db->addkey('enable', 1);
+			#$db->addkey('groups_idgroup',$group_idgroup);
+			$sql  = "SELECT users_idusers, profile_idprofile, groups_idgroup FROM agendaBerco.userProfileGroup
+                    join agendaBerco.users on ( users.idusers =  userProfileGroup.users_idusers and users.enable = 1) 
+                    where groups_idgroup = '$group_idgroup'";
+			$db->query($sql);
 			while ( $db->getusers_idusers() ) {
 				$out['iduser'][] =  $db->getusers_idusers();
 				$db->next();
 				
 			}
+			
 			return $out;
 		}
 	}

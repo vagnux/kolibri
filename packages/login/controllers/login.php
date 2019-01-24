@@ -51,9 +51,9 @@ class login extends controller
     function index($msg = '')
     {
         debug::log("carregando login");
-        debug::log(print_r($this->request,true));
+        
         if ((! $this->request['pass']) and (! $this->request['login']) or ($msg)) {
-            debug::log("xaxaxaxaxaxa");
+           
             // echo session::get ( 'login' );
             if (! session::get('login')) {
                 $out = new loginForm();
@@ -77,6 +77,7 @@ class login extends controller
     
     function autenticar()
     {
+        debug::log(print_r($this->request,true));
         if ($this->request['login'] and $this->request['pass']) {
             
             $s = new autenticator();
@@ -87,13 +88,24 @@ class login extends controller
                 $s->register();
                 //$out = new loginForm();
                 //$out->goPage(session::get('requestAddress'), "login");
+                /*
                 page::addBody('<meta http-equiv="refresh" content="0"; url=' . session::get('requestAddress') . ">");
                 page::addCode('MSG', '<meta http-equiv="refresh" content="0">');
+                */
+                debug::log("codigo ajax enviado OK");
+                $out['logged'] = 'OK';
+                page::addBody(json_encode($out));
                 page::renderAjax();
-                debug::log("codigo ajax enviado");
+                
             } else {
+                /*
                 debug::log("Login e senha incorretos");
                 $this->index("Login e senha incorretos !");
+                */
+                debug::log("codigo ajax enviado ERRO");
+                $out['logged'] = 'ERR';
+                page::addBody(json_encode($out));
+                page::renderAjax();
             }
         } else {
             debug::log("Login e senha em branco");

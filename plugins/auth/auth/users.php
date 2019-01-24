@@ -169,6 +169,7 @@ namespace auth {
 			$db->setconn ( \database::kolibriDB () );
 			$db->settable ( 'users' );
 			$db->addkey ( 'login', $userLogin );
+			$db->addkey('enable', 1);
 			$db->addkey ( 'secret', md5 ( $clearPassword ) );
 			if ($db->getidusers ()) {
 				

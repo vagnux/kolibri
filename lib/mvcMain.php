@@ -18,22 +18,23 @@
  * You should have received a copy of the GNU General Public License
  * along with Kolibri. If not, see <http://www.gnu.org/licenses/>.
  */
-
-define('kversion',20180505);
-
+define('kversion', 20180505);
 
 function templateCall($pluginClass, $pluginMethod)
 {
-    $string = explode('(', $pluginMethod);
-    
-    $method = $string[0];
-    $string = explode(")", $string[1]);
-    $param = $string[0];
-    $param = str_replace("'", '', $param);
-    $param = str_replace('"', '', $param);
-    $obj = new $pluginClass();
-    $out = $obj->$method($param);
-    return $out;
+    if (class_exists($pluginClass)) {
+        $string = explode('(', $pluginMethod);
+        $method = $string[0];
+        $string = explode(")", $string[1]);
+        $param = $string[0];
+        $param = str_replace("'", '', $param);
+        $param = str_replace('"', '', $param);
+        $obj = new $pluginClass();
+        $out = $obj->$method($param);
+        return $out;
+    } else {
+        return false;
+    }
 }
 
 class boot
@@ -41,9 +42,9 @@ class boot
 
     public static function init($package, $controller, $method)
     {
-    	if ($package) {
-    		
-    		$pkg = $package;
+        if ($package) {
+
+            $pkg = $package;
             session::init();
             // require_once ("controllers/$pkg/" . $controller . ".php"); # Codigo depreciado para vers��o 0.4
             require_once ("packages/$package/controllers/" . $controller . ".php");
@@ -79,12 +80,12 @@ class controller
     {
         // $this->view = new view ();
         $this->requestType = $_SERVER['REQUEST_METHOD'];
-        
+
         foreach ($_GET as $key => $value) {
-            
+
             $this->request[$key] = addslashes($value);
         }
-        
+
         foreach ($_POST as $key => $value) {
             if (! is_array($value)) {
                 $this->request[$key] = addslashes($value);
@@ -103,14 +104,14 @@ class model
     {
         // $this->view = new view ();
         $this->requestType = $_SERVER['REQUEST_METHOD'];
-        
+
         foreach ($_GET as $key => $value) {
-            
+
             $this->request[$key] = addslashes($value);
         }
-        
+
         foreach ($_POST as $key => $value) {
-            
+
             $this->request[$key] = addslashes($value);
             // $this->request [$key] = $value ;
         }
@@ -203,22 +204,22 @@ final class page
         // debug::log ( debug_backtrace () [1] ['line'] );
         if (! self::$callme[$idx]) {
             self::$callme[$idx] = 1;
-            
+
             if (! self::$theme) {
                 self::$theme = config::theme();
             }
-            
+
             self::$cssfile = array_unique(self::$cssfile);
             self::$jsfile = array_unique(self::$jsfile);
             // arsort( self::$jsfile );
             self::$jscode = array_unique(self::$jscode);
             self::$csscode = array_unique(self::$csscode);
-            
+
             if (file_exists("themes/" . self::$theme . "/head.html")) {
                 $header = file("themes/" . self::$theme . "/head.html");
-                
+
                 foreach ($header as $line) {
-                    
+
                     $line = str_replace("::title::", self::$title, $line);
                     $line = str_replace("::lang::", self::$lang, $line);
                     $line = str_replace("::description::", self::$description, $line);
@@ -227,7 +228,7 @@ final class page
                     $line = str_replace("::siteroot::", config::siteRoot(), $line);
                     $line = str_replace("::siteRoot::", config::siteRoot(), $line);
                     $line = str_replace("::sitename::", config::siteName(), $line);
-                    
+
                     // Loading CSS
                     $fcss = '';
                     foreach (self::$cssfile as $cssf) {
@@ -237,7 +238,7 @@ final class page
                     $line = str_replace("::cssfile::", $fcss, $line);
                     $fcssCode = '';
                     foreach (self::$csscode as $csscode) {
-                        
+
                         $fcssCode .= "
 							<style>
 								$csscode
@@ -245,19 +246,19 @@ final class page
 							";
                     }
                     $line = str_replace("::csscode::", $fcssCode, $line);
-                    
+
                     // End
                     // Loading JS
                     $fjs = '';
                     foreach (self::$jsfile as $jsfil) {
-                        
+
                         $jsfil = str_replace("::siteroot::", config::siteRoot(), $jsfil);
                         $fjs .= "<script  src='$jsfil'></script>\n";
                     }
                     $line = str_replace("::jsfile::", $fjs, $line);
                     $jCode = '';
                     foreach (self::$jscode as $jscode) {
-                        
+
                         $jCode .= "
 				<script type=\"text/javascript\">
 				$jscode
@@ -265,24 +266,24 @@ final class page
 				";
                     }
                     $line = str_replace("::jscode::", $jCode, $line);
-                    
+
                     echo charConverter($line);
                 }
             }
-            
+
             /*
              * Body process
              */
-            
+
             if ($body != 'index') {
                 if (file_exists("themes/" . self::$theme . "/$body.html")) {
-                    
+
                     $bodyFile = file("themes/" . self::$theme . "/$body.html");
                 } else {
                     $bodyFile = file("themes/" . self::$theme . "/index.html");
                 }
             } else {
-                
+
                 $_execute = kernel::execute();
                 if (file_exists("themes/" . self::$theme . "/$_execute.html")) {
                     $bodyFile = file("themes/" . self::$theme . "/$_execute.html");
@@ -301,9 +302,9 @@ final class page
             // debug::log ( "executando bodyfile : " . count ( $bodyFile ) );
             $i = 0;
             foreach ($bodyFile as $line) {
-                
+
                 $i ++;
-                
+
                 // Loading CSS
                 $fcss = '';
                 // debug::log("ccsfile " . print_r(self::$cssfile,true));
@@ -323,7 +324,7 @@ final class page
 					";
                 }
                 $line = str_replace("::csscode::", $fcssCode, $line);
-                
+
                 // End
                 // Loading JS
                 $fjs = '';
@@ -343,24 +344,24 @@ final class page
 					";
                 }
                 $line = str_replace("::jscode::", $jCode, $line);
-                
+
                 // debug::log($i);
                 /*
                  * Este trecho experimental visa permitir que o template nao apenas indique locais de input de conteudo como
                  * possa especificar parametros como chamar uma classe e um metodo em especifico
                  */
-                
+
                 $pattern = '/::(.*)::(.*):(.*):/';
                 preg_match_all($pattern, $line, $matches, PREG_OFFSET_CAPTURE);
                 // echo count($matches[0]);
                 $out = $matches[0];
                 foreach ($out as $item) {
-                    
+
                     $tag = explode(":", $item[0]);
-                    
+
                     // if (self::$code [$tag[]]) {
                     $line = str_replace($item[0], templateCall($tag[4], $tag[5]), $line);
-                    
+                    #debug::log("MATCH " . $item[0]);
                     $line = str_replace("::siteroot::", config::siteRoot(), $line);
                     /*
                      * } else {
@@ -369,11 +370,11 @@ final class page
                      * }
                      */
                 }
-                
+
                 /*
                  * FIM
                  */
-                
+
                 $line = str_replace("::title::", self::$title, $line);
                 $line = str_replace("::lang::", self::$lang, $line);
                 $line = str_replace("::description::", self::$description, $line);
@@ -382,21 +383,21 @@ final class page
                 $line = str_replace("::siteroot::", config::siteRoot(), $line);
                 $line = str_replace("::siteRoot::", config::siteRoot(), $line);
                 $line = str_replace("::sitename::", config::siteName(), $line);
-                
+
                 $line = str_replace("::BODY::", $myBody, $line);
                 $line = str_replace("::body::", $myBody, $line);
                 $line = str_replace("::siteroot::", config::siteRoot(), $line);
                 $line = str_replace("::sitename::", config::siteName(), $line);
-                
+
                 $pattern = '/::+[a-zA-Z0-9]+::/';
-                
+
                 preg_match_all($pattern, $line, $matches, PREG_OFFSET_CAPTURE);
-                
+
                 // echo count($matches[0]);
                 $out = $matches[0];
-                
+
                 foreach ($out as $item) {
-                    
+
                     $tag = str_replace(":", "", $item[0]);
                     if (self::$code[$tag]) {
                         $line = str_replace($item[0], self::$code[$tag], $line);
@@ -406,13 +407,13 @@ final class page
                         $line = str_replace("::siteroot::", config::siteRoot(), $line);
                     }
                 }
-                
+
                 echo charConverter($line);
             }
-            
+
             // die(date('H:i:s'));
             if (file_exists("themes/" . self::$theme . "/foot.html")) {
-                
+
                 $foot = file("themes/" . self::$theme . "/foot.html");
                 foreach ($foot as $line) {
                     foreach (self::$jsfile as $jsfile) {
@@ -428,7 +429,7 @@ final class page
                     }
                     $line = str_replace("::jscode::", $jscode, $line);
                     $line = str_replace("::siteroot::", config::siteRoot(), $line);
-                    
+
                     $pattern = '/::+[a-zA-Z0-9]+::/';
                     preg_match_all($pattern, $line, $matches, PREG_OFFSET_CAPTURE);
                     $out = $matches[0];
@@ -442,7 +443,7 @@ final class page
                             $line = str_replace("::siteroot::", config::siteRoot(), $line);
                         }
                     }
-                    
+
                     echo charConverter($line);
                 }
             }
@@ -457,11 +458,11 @@ final class page
 
     public static function renderAjax()
     {
-    	header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-    	header("Cache-Control: post-check=0, pre-check=0", false);
-    	header("Pragma: no-cache");
-   
-    	foreach (self::$body as $b) {
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        header("Cache-Control: post-check=0, pre-check=0", false);
+        header("Pragma: no-cache");
+
+        foreach (self::$body as $b) {
             echo $b;
         }
         die();
@@ -471,13 +472,12 @@ final class page
 class session
 {
 
-    //private $openAllController;
+    // private $openAllController;
     private static $ses;
-   
 
     public static function init()
     {
-        if ( database::kolibriDB()) {
+        if (database::kolibriDB()) {
             self::$ses = new sessionDB();
         }
         session_start();
@@ -517,7 +517,7 @@ class sessionDB
         $this->db = new mydataobj();
         $this->db->setconn(database::kolibriDB());
         $this->db->query($sql);
-        
+
         session_set_save_handler(array(
             $this,
             "_open"
@@ -564,10 +564,10 @@ class sessionDB
 
     function _write($id, $data)
     {
-        
+
         // Create time stamp
         $access = time();
-        
+
         // Set query
         $this->db->query("REPLACE INTO sessions VALUES ('$id', '$access', '$data')");
         return true;
@@ -582,7 +582,7 @@ class sessionDB
     function _gc($max)
     {
         $old = time() - $max;
-        
+
         // Set query
         $this->db->query("DELETE * FROM sessions WHERE access < '$old'");
         return true;

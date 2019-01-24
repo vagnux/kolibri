@@ -128,6 +128,8 @@ class kernel {
 		if ((getVar ( 'login' ) or getVar ( 'pass' )) and ! (session::get ( "logged" ) == "on")) {
 			debug::log("vamos autenticar ???");
 			
+				
+			
 			$security = new auth ();
 			//$oauth = new oauth();
 			//$id = $oauth->verify();
@@ -160,31 +162,46 @@ class kernel {
 				debug::log("OAUTH PARA: " . $security->users->getlogin());
 				session::set('authorized',true);
 				session::set ( "logged","on");
+			}else{
+			    header('HTTP/1.0 401 Unauthorized');
+			    die();
 			}
 		}
 		
 		if (session::get ( "logged" ) == "on") {
 			$security = new auth ();
-			if ($security->acl->valideAcl ( self::$_execute . "/" . self::$_method, session::get ( 'login' ) )) {
+			if (($security->acl->valideAcl ( self::$_execute . "/" . self::$_method, session::get ( 'login' ) ) ) or ($security->acl->valideAcl ( self::$_execute . "/" . self::$_method . ":" . strtoupper($_SERVER['REQUEST_METHOD'])  , session::get ( 'login' ) )) ) {
 				
 				boot::init ( self::$pkg, self::$_execute, self::$_method );
 			} else {
 				self::$pkg= "sys";
-				boot::init ( "sys", "denied", "index" );
+				if ( (isset( $_SERVER['PHP_AUTH_USER'] )) or (isset( $_SERVER['HTTP_AUTHORIZATION'] )) ) {
+				  
+				    header('HTTP/1.0 401 Unauthorized');
+				    die();
+				}else{
+				    boot::init ( "sys", "denied", "index" );
+				}
 			}
 		} else {
 			debug::log("Nao logado " . session::get ( "logged" ));
+			if ( (isset( $_SERVER['PHP_AUTH_USER'] )) or (isset( $_SERVER['HTTP_AUTHORIZATION'] )) ) {
+			   
+			    header('HTTP/1.0 401 Unauthorized');
+			    die();
+			}else{
 			session::set ( '_execute', self::$_execute );
 			session::set ( '_method', self::$_method );
 			self::$_execute = 'login';
 			self::$_method = 'index';
 			self::$pkg = 'login';
 			boot::init ( "login", "login", "index" );
+			}
 		}
 	}
 	private static function runlevel3($pkg) {
 		if ((session::get ( "logged" ) == "on")) {
-			if ($security->acl->valideAcl ( self::$_execute . "/" . self::$_method, session::get ( 'login' ) )) {
+		    if (($security->acl->valideAcl ( self::$_execute . "/" . self::$_method, session::get ( 'login' ) ) ) or ($security->acl->valideAcl ( self::$_execute . "/" . self::$_method . ":" . strtoupper($_SERVER['REQUEST_METHOD'])  , session::get ( 'login' ) )) ) {
 				
 				boot::init ( $pkg, self::$_execute, self::$_method );
 			} else {
@@ -207,7 +224,14 @@ class kernel {
 		$executerTimer = microtime ( true );
 		self::init ();
 		debug::log ( "Running " . self::$pkg . "/" . self::$_execute . "/" . self::$_method );
-		self::{'runlevel' . self::accessLevel ( self::$pkg )} ( self::$pkg );
+		if (self::$pkg ) {
+		  self::{'runlevel' . self::accessLevel ( self::$pkg )} ( self::$pkg );
+		}else{
+		    header("HTTP/1.0 404 Not Found");
+		    page::addBody('Page not found');
+		    page::renderAjax();
+		    
+		}
 		$finish = microtime ( true );
 		debug::log ( "Executado em " . ($finish - $executerTimer) );
 	}

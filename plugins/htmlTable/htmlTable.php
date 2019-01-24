@@ -49,7 +49,8 @@ class htmlTable {
     	}
     	
         if ($this->tableClass) {
-            $out = "<table id='" . $this->id . "' class='" . $this->tableClass . "'>\n";
+            
+            $out = "<div id='boxTable' name='boxTable' class='boxTable table-responsive'> <table id='" . $this->id . "' class='" . $this->tableClass . "'>\n";
         } else {
             $out = "<table>\n";
         }
@@ -64,7 +65,7 @@ class htmlTable {
         $out .= "<thead>";
         foreach ($table as $key => $value) {
 
-            $out .= "<th>$key</th>";
+            $out .= "<th scope='col'>$key</th>";
             $keys [] = $key;
 
             if (is_array($value)) {
@@ -84,6 +85,7 @@ class htmlTable {
             foreach ($aux as $col) {
                 if ($this->lineClass) {
                     $out .= "<tr class" . $this->lineClass . ">\n";
+                    
                 } else {
                     $out . "<tr>\n";
                 }
@@ -95,7 +97,7 @@ class htmlTable {
             }
         }
         $out .= "</tbody>";
-        $out .= "</table>";
+        $out .= "</table></div>";
         return $out;
     }
 

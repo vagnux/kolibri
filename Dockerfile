@@ -1,13 +1,7 @@
-# Dockerfile
-FROM nimmis/apache-php5
-
-MAINTAINER SemaphoreCI <dev@semaphoreci.com>
-
-ADD . /var/www/html
-RUN chmod 777 -R /var/www/html/config
-RUN chmod 777 -R /var/www/html/media
-
-EXPOSE 80
-EXPOSE 443
-
-CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
+FROM debian
+COPY install.sh /
+RUN chmod +x /install.sh
+RUN /install.sh
+COPY . /var/www/html/
+#ENTRYPOINT ["/etc/init.d/apache2","start"]
+ENTRYPOINT ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]

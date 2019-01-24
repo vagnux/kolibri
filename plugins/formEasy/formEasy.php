@@ -25,6 +25,9 @@ class formEasy extends formElements {
 		// page::addJsFile ( '::siteroot::/vendors/jquery-ui/jquery-ui.js' );
 		page::addJsFile ( '::siteroot::/plugins/formEasy/js/formEasy.js' );
 		// page::addCssFile ( '::siteroot::/vendors/jquery-ui/jquery-ui.css' );
+		
+	
+		
 	}
 	function addText($label, $name, $value, $obrigatorio = 0, $placeholder = '', $required = '', $pattern = '') {
 		$obrigatorio = $obrigatorio != 0 ? "html-form-obrigatorio" : "";
@@ -91,10 +94,14 @@ class formEasy extends formElements {
 	}
 	function printform() {
 		$out = parent::printform ();
-		$js .= '$(document).ready(function(){
-					$("#' . $this->formName . '").htmlForm();
-                                                                                                                      
-		});';
+		$js .= '
+        $( "#' . $this->formName . '" ).submit(function( event ) {
+            if ( ! formValide("' . $this->formName . '")) {
+                event.preventDefault();
+            }
+        });
+            ';
+		
 		page::addJsScript ( $js );
 		return $out;
 	}
@@ -140,6 +147,8 @@ class formEasy extends formElements {
                           });
                        });
              });
+
+     
 
              ";
 		
@@ -203,7 +212,7 @@ class formEasy extends formElements {
 		// parent::name($this->name);
 		parent::openForm ();
 	}
-	function formActionButton($urlTarget, $buttonName, $varArrays = '', $target = '_self') {
+	function formActionButton($urlTarget, $buttonName, $varArrays = '', $target = '_self', $onclick = '' ) {
 		$myform = new formEasy ();
 		$myform->action ( $urlTarget )->method ( "post" )->target ( $target )->openForm ();
 		if (is_array ( $varArrays )) {
@@ -211,23 +220,36 @@ class formEasy extends formElements {
 				$myform->type ( "hidden" )->name ( $k )->value ( $v )->done ();
 			}
 		}
-		$myform->type ( 'submit' )->class ( 'btn btn-primary' )->value ( $buttonName )->done ();
+		if ( ! $onclick ) {
+		      $myform->type ( 'submit' )->class ( 'btn btn-primary' )->value ( $buttonName )->done ();
+		}else{
+		    $cod = "<button type='button' onClick='$onclick' class='btn btn-primary' >
+      			$buttonName
+    		</button>";
+		    $myform->addhtml ( $cod );
+		}
 		$myform->closeForm ();
 		return $myform->printform ();
 	}
 	function formActionIcon($urlTarget, $buttonName = '', $varArrays = '', $glyphicon = 'glyphicon glyphicon-cog', $onclick = '', $target = '_self') {
-		$myform = new formEasy ();
-		$myform->action ( $urlTarget )->method ( "post" )->target ( $target )->openForm ();
-		if (is_array ( $varArrays )) {
-			foreach ( $varArrays as $k => $v ) {
-				$myform->type ( "hidden" )->name ( $k )->value ( $v )->done ();
-			}
-		}
-		$cod = "<button type='submit' class='btn btn-primary' >
+	    $myform = new formEasy ();
+	    $myform->action ( $urlTarget )->method ( "post" )->target ( $target )->openForm ();
+	    if (is_array ( $varArrays )) {
+	        foreach ( $varArrays as $k => $v ) {
+	            $myform->type ( "hidden" )->name ( $k )->value ( $v )->done ();
+	        }
+	    }
+	    if ( ! $onclick ) {
+	        $cod = "<button type='submit'  class='btn btn-primary' >
       			<span class='$glyphicon'></span> $buttonName
     		</button>";
-		$myform->addhtml ( $cod );
-		$myform->closeForm ();
-		return $myform->printform ();
+	    }else{
+	        $cod = "<button type='button' onClick='$onclick' class='btn btn-primary' >
+      			<span class='$glyphicon'></span> $buttonName
+    		</button>";
+	    }
+	    $myform->addhtml ( $cod );
+	    $myform->closeForm ();
+	    return $myform->printform ();
 	}
 }
